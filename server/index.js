@@ -14,7 +14,9 @@ try {
 }
 
 require("./search.js")(MongoClient,config);
+singleSearch();
 
+require('./config/passport')(MongoClient, passport);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true

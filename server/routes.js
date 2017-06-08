@@ -3,12 +3,17 @@ module.exports = function (app, passport, express, MongoClient) {
     var path = require('path');
     app.use(express.static(ROOT_DIR));
 
-    app.use('/home', function(req, res) {
+    app.use('/home',isLoggedIn function(req, res) {
         send(res, "dashboard.html");
     });
 
     app.use('/', function(req, res) {
         send(res, "login.html");
+    });
+
+    app.get('/logout', function(req, res) {
+        req.logout();
+        res.redirect('/');
     });
 
     function isLoggedIn(req, res, next) {
@@ -18,7 +23,7 @@ module.exports = function (app, passport, express, MongoClient) {
                 return next();
 
             // if they aren't redirect them to the home page
-            res.redirect('/login');
+            res.redirect('/');
             console.log('Not logged in; redirecting...');
     }
 
