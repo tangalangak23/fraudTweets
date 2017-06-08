@@ -6,6 +6,7 @@ var session = require('express-session');
 var app = express();
 var fs = require('fs');
 var MongoClient=require('mongodb').MongoClient;
+var mongo=require('mongodb');
 var config;
 try {
 	config = JSON.parse(fs.readFileSync('./config/authorization.json', 'utf8'));
@@ -16,7 +17,7 @@ try {
 require("./search.js")(MongoClient,config);
 singleSearch();
 
-require('./config/passport')(MongoClient, passport);
+require('./config/passport')(MongoClient, passport,mongo);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true

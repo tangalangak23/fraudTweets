@@ -6,7 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var md5 = require('md5');
 
 // expose this function to our app using module.exports
-module.exports = function (MongoClient, passport) {
+module.exports = function (MongoClient, passport,mongo) {
 
     // =========================================================================
     // passport session setup ==================================================
@@ -16,15 +16,20 @@ module.exports = function (MongoClient, passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function (user, done) {
-        done(null, user.uid);
+        done(null, user._id);
     });
 
     // used to deserialize the user
-    passport.deserializeUser(function (id, done) {
-        mysqlConnection.query("SELECT * FROM USERS WHERE USER_ID = ? ", [id], function (err, rows) {
-            done(err, rows[0]);
-        });
+    passport.deserializeUser(function (_id, done) {
+      MongoClient.connect(url,function(err,db){
+        var users=db.collection("users");
+        tempID=new mongo.ObjectID(_id);
+        users.find({"_id":tempID}).toArray(function(err,item){
+          db.close();
+          done(err,item[0]);
+      });
     });
+  });
 
 
     // =========================================================================
@@ -39,19 +44,22 @@ module.exports = function (MongoClient, passport) {
         passwordField: 'password',
         passReqToCallback: true // allows us to pass back the entire request to the callback
     },
-            function (req, email, password, done) { // callback with email and password from our form
+            function (req, username, password, done) { // callback with email and password from our form
+              MongoClient.connect(url,function(err,db){
+                var constants=db.collection("users");
+                constants.find({"uname":username}).toArray(function(err,item){
+                  db.close();
+                  if (!item.length) {
+                      return done(null, false, console.log("no user found")); // req.flash is the way to set flashdata using connect-flash
+                  }
+                  lastID=item[0].value;
 
-                mysqlConnection.query("SELECT * FROM USERS WHERE WORK_EMAIL = '" + email + "'", function (err, rows) {
-                    if (!rows.length) {
-                        return done(null, false, console.log("no user found")); // req.flash is the way to set flashdata using connect-flash
-                    }
-
-                    // if the user is found but the password, check if the password is wrong
-                    if (!(rows[0]["PASSWORD"].toString().substring(0, 32) == md5(password)))
-                        return done(null, false, console.log("Wrong Password")); // create the loginMessage and save it to session as flashdata
-
-                    // all is well, return successful user
-                    return done(null, rows[0]);
+                  if (item[0].password.toString() != md5(password)){
+                      return done(null, false, console.log("Wrong Password")); // create the loginMessage and save it to session as flashdata
+                  }
+                  // all is well, return successful user
+                  return done(null, item[0]);
                 });
+              });
             }));
 };
