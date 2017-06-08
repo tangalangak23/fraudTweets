@@ -25,13 +25,13 @@ app.use(session({
 	secret: 'fraudTweetsAuthSecretHere',
 	resave: true,
 	saveUninitialized: true
- } ));
+ }));
 
- app.use(passport.initialize());
- app.use(passport.session());
+app.use(passport.initialize());
+app.use(passport.session());
 
- require('./routes.js')(app,passport, express, MongoClient);
-var port=config.port;
+require('./routes.js')(app,passport, express, MongoClient);
+var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);
 });
