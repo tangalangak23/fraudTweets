@@ -1,12 +1,10 @@
-var Twitter=require("twitter");
-var urlcodeJSON=require("urlcode-json");
 var sentiment=require("sentiment");
 var assert=require('assert');
 var config;
 var lastID;
 
 
-function searchTweets(MongoClient,config,url){
+function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
   MongoClient.connect(url,function(err,db){
     var constants=db.collection("constants");
     constants.find({"name":"lastID"}).toArray(function(err,item){
@@ -15,14 +13,9 @@ function searchTweets(MongoClient,config,url){
     db.close();
   });
   function query(){
-    var client= new Twitter({
-      consumer_key:config.CONSUMER_KEY,
-      consumer_secret:config.CONSUMER_SECRET,
-      access_token_key: config.ACCESS_KEY,
-      access_token_secret: config.ACCESS_SECRET
-    });
+
     var query={
-      q:"@sprint",
+      q:handle,
       result_type:"recent",
       count:100,
       since_id:lastID
@@ -33,15 +26,17 @@ function searchTweets(MongoClient,config,url){
       if(error) throw (error);
       MongoClient.connect(url,function(err,db){
         assert.equal(null,err);
-        console.log("connected to database");
+        console.log("Running search...");
         var length=tweets.statuses.length;
         if(length==0){
            db.close();
+           console.log("Search complete\n");
            return 0;
         }
         for(i=0;i<length;i++){
           if(!tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
             name=tweets.statuses[i].user.name;
+            screenName=tweets.statuses[i].user.screen_name;
             uid=tweets.statuses[i].id_str;
             text=tweets.statuses[i].text;
             dateTime=tweets.statuses[i].created_at;
@@ -49,13 +44,13 @@ function searchTweets(MongoClient,config,url){
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
             if(score<1){
-              db.collection('tweets').insert({"id":uid,"name":name,"text":text,"score":score,"dateTime":dateTime,"replyFound":false});
+              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false});
            }
           }
         }
         var constants=db.collection("constants");
         constants.update({name:"lastID"},{name:"lastID",value:tweets.statuses[0].id_str});
-
+        console.log("Search complete\n");
         db.close()
       });
     });
@@ -63,7 +58,7 @@ function searchTweets(MongoClient,config,url){
   setTimeout(query,500);
 }
 
-module.exports=function(MongoClient,config){
+module.exports=function(MongoClient,config,client,urlcodeJSON){
 	url=config.url;
 
 	this.reset = function(){
@@ -77,11 +72,12 @@ module.exports=function(MongoClient,config){
 	}
 
 	this.singleSearch=function(){
-		searchTweets(MongoClient,config,url);
+		searchTweets(MongoClient,config,url,client,urlcodeJSON);
 	}
 
 	this.startSearch=function(){
-		searchTweets(MongoClient,config,url);
-		setInterval(searchTweets,60000);
+    handle="@sprint";
+		searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);
+		setInterval(function(){searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);},60000);
 	}
 }
