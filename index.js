@@ -4,7 +4,6 @@ var sentiment=require("sentiment");
 var MongoClient=require('mongodb').MongoClient;
 var assert=require('assert');
 var fs = require('fs');
-var authorization=require('authorization');
 
 try {
 	config = JSON.parse(fs.readFileSync('authorization.json', 'utf8'));
