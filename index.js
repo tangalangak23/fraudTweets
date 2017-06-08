@@ -3,7 +3,9 @@ var urlcodeJSON=require("urlcode-json");
 var sentiment=require("sentiment");
 var MongoClient=require('mongodb').MongoClient;
 var assert=require('assert');
-var url="mongodb://localhost:27017/fraudTweets";
+var authorization=require('authorization');
+
+var url=authorization.url;
 var lastID;
 
 
@@ -17,10 +19,10 @@ function everyThingAtOnce(){
   });
   function query(){
     var client= new Twitter({
-      consumer_key:process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret:process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-      access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+      consumer_key:authorization.CONSUMER_KEY,
+      consumer_secret:authorization.CONSUMER_SECRET,
+      access_token_key: authorization.ACCESS_KEY,
+      access_token_secret: authorization.ACCESS_SECRET
     });
     var query={
       q:"@sprint",
