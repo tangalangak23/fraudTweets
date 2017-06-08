@@ -3,9 +3,16 @@ var urlcodeJSON=require("urlcode-json");
 var sentiment=require("sentiment");
 var MongoClient=require('mongodb').MongoClient;
 var assert=require('assert');
+var fs = require('fs');
 var authorization=require('authorization');
 
-var url=authorization.url;
+try {
+	config = JSON.parse(fs.readFileSync('authorization.json', 'utf8'));
+} catch (e) {
+	console.err('No config file found. Using defaults.');
+}
+
+var url=config.url;
 var lastID;
 
 
@@ -19,10 +26,10 @@ function everyThingAtOnce(){
   });
   function query(){
     var client= new Twitter({
-      consumer_key:authorization.CONSUMER_KEY,
-      consumer_secret:authorization.CONSUMER_SECRET,
-      access_token_key: authorization.ACCESS_KEY,
-      access_token_secret: authorization.ACCESS_SECRET
+      consumer_key:config.CONSUMER_KEY,
+      consumer_secret:config.CONSUMER_SECRET,
+      access_token_key: config.ACCESS_KEY,
+      access_token_secret: config.ACCESS_SECRET
     });
     var query={
       q:"@sprint",
