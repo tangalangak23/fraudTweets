@@ -24,12 +24,12 @@ var client= new Twitter({
 	access_token_key: config.ACCESS_KEY,
 	access_token_secret: config.ACCESS_SECRET
 });
-/*
+
 require("./search.js")(MongoClient,config,client,urlcodeJSON);
-singleSearch();
-*/
+startSearch();
+
 require("./replySearch.js")(MongoClient,config,client,urlcodeJSON);
-singleReply();
+startReplyIndexing();
 
 require('./config/passport')(MongoClient, passport,mongo);
 app.use(cookieParser()); // read cookies (needed for auth)

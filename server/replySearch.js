@@ -6,7 +6,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
   MongoClient.connect(url,function(err,db){
     db.collection("tweets").find({"replyFound":false}).toArray(function(err,item){
       db.close();
-      for(i=0;i<1;i++){
+      for(i=0;i<item.length;i++){
         query(item[i].screenName,item);
       }
     });
@@ -38,7 +38,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
               return 0;
           }
           for (i = 0; i < tweets.statuses.length; i++) {
-              if (tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0] != "R" && tweets.statuses[i].text[1] != "T") {
+              if (tweets.statuses[i].in_reply_to_status_id_str!=null && tweets.statuses[i].text[0] != "R" && tweets.statuses[i].text[1] != "T") {
                   replyId = (tweets.statuses[i].in_reply_to_status_id_str);
                   name = tweets.statuses[i].user.name;
                   screenName = tweets.statuses[i].user.screen_name;
@@ -59,8 +59,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                                   MongoClient.connect(url, function (err, db) {
                                       collection = db.collection("tweets");
                                       collection.update({id: results.id}, results, function (err, item) {
-                                          console.log(err);
-                                          console.log(item);
+                                        console.log("Successfully Updated");
                                       });
                                       db.close();
                                   });
@@ -74,8 +73,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                                   MongoClient.connect(url, function (err, db) {
                                       collection = db.collection("tweets");
                                       collection.update({id: results.id}, results, function (err, item) {
-                                          console.log(err);
-                                          console.log(item);
+                                        console.log("Successfully Updated");
                                       });
                                       db.close();
                                   });
@@ -83,6 +81,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                           }
                       } else {
                           console.log("No corrosponding tweet found" + tweets.statuses[i].in_reply_to_status_id_str + "\n");
+                          break;
                       }
                   }
               }
