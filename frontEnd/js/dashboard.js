@@ -1,11 +1,11 @@
 var table=$("#tweets").DataTable({
     columns: [
-        {data: "dateTime"},
+        {data: "id"},
         {data: "screenName"},
         {data: "replyFound"},
         {data: "score"},
-        {data: "id"}
-    ],
+        {data: "dateTime"}
+    ],"order":[[0,"desc"]],
     ajax: {
         url: "/getTweets",
         dataSrc: "",
@@ -15,7 +15,7 @@ var table=$("#tweets").DataTable({
 var id;
 $("#tweets tbody").on("click", "tr", function (event) {
   var name=$(this).find("td:nth-child(2)").text();
-  id=$(this).find("td:nth-child(5)").text();
+  id=$(this).find("td:nth-child(1)").text();
   //window.open('https://twitter.com/'+name+'/status/'+id, '_blank');
   $.post("/getTweetInfo",{"id":id},function(data){
     $("#name").text(data.name);
