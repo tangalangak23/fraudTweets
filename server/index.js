@@ -16,6 +16,7 @@ try {
 	console.log('No config file found. Using defaults.');
 }
 const DEBUG=config.debug;
+const url=config.url;
 
 var client= new Twitter({
 	consumer_key:config.CONSUMER_KEY,
@@ -23,9 +24,12 @@ var client= new Twitter({
 	access_token_key: config.ACCESS_KEY,
 	access_token_secret: config.ACCESS_SECRET
 });
-
+/*
 require("./search.js")(MongoClient,config,client,urlcodeJSON);
-startSearch();
+singleSearch();
+*/
+require("./replySearch.js")(MongoClient,config,client,urlcodeJSON);
+singleReply();
 
 require('./config/passport')(MongoClient, passport,mongo);
 app.use(cookieParser()); // read cookies (needed for auth)
@@ -43,7 +47,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./routes.js')(app,passport, express, MongoClient,client,urlcodeJSON,DEBUG);
+require('./routes.js')(app,passport, express, MongoClient,client,urlcodeJSON,DEBUG,url);
 var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);

@@ -4,7 +4,7 @@ var table=$("#tweets").DataTable({
         {data: "screenName"},
         {data: "replyFound"},
         {data: "score"},
-        {data: "dateTime"}
+        {data: "fraud"}
     ],"order": [[ 0, "desc" ]],
     ajax: {
         url: "/getTweets",
@@ -20,8 +20,8 @@ $("#tweets tbody").on("click", "tr", function (event) {
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
       $("#reply").show();
-      $("#replyId").text(data.reply.screenName);
-      $("#replyText").text(data.reply.text);
+      $("#replyId").text(data.lastReply.screenName);
+      $("#replyText").text(data.lastReply.text);
     }
     else{
       $("#reply").hide();
