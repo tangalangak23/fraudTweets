@@ -15,6 +15,7 @@ try {
 } catch (e) {
 	console.log('No config file found. Using defaults.');
 }
+const DEBUG=config.debug;
 
 var client= new Twitter({
 	consumer_key:config.CONSUMER_KEY,
@@ -42,7 +43,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./routes.js')(app,passport, express, MongoClient,client,urlcodeJSON);
+require('./routes.js')(app,passport, express, MongoClient,client,urlcodeJSON,DEBUG);
 var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);

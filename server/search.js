@@ -1,5 +1,5 @@
-var sentiment=require("sentiment");
 var assert=require('assert');
+var sentiment=require("sentiment");
 var config;
 var lastID;
 
@@ -12,6 +12,17 @@ function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
     });
     db.close();
   });
+
+  function checkHelp(text){
+    var terms=["DM","Direct Message","help","helps","assist","feedback","customer"];
+    for(i=0;i<terms.length;i++){
+      if(text.includes(terms[i])){
+        return true;
+      }
+    }
+    return false;
+  }
+
   function query(){
 
     var query={
@@ -34,19 +45,51 @@ function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
            return 0;
         }
         for(i=0;i<length;i++){
-          if(!tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
+          if(tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
             name=tweets.statuses[i].user.name;
             screenName=tweets.statuses[i].user.screen_name;
             uid=tweets.statuses[i].id_str;
             text=tweets.statuses[i].text;
             dateTime=tweets.statuses[i].created_at;
             score=sentiment(tweets.statuses[i].text).score;
-            console.log(name+"\n"+uid+"\n--------------");
-            console.log(text+"\n"+score+"\n\n\n");
-            if(score<1){
-              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false});
+            if(!tweets.statuses[i].in_reply_to_status_id_str){
+              console.log(name+"\n"+uid+"\n--------------");
+              console.log(text+"\n"+score+"\n\n\n");
+              if(score<0){
+                db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false,"fraud":null,"lastReply":null});
+             }
            }
-          }
+           else{
+             var replyId=tweets.statuses[i].in_reply_to_status_id_str;
+             var tweetCollection=db.collection("tweets");
+             tweetCollection.find({"id":replyId}).toArray(function(err,item){
+               if(item.length==0){
+                 console.log("No corrosponding tweet found"+replyId+"\n");
+               }
+              else{
+                replyText=item[0].text;
+                if(checkHelp(replyText)){
+                  if(item[0].user.screen_name=="sprintcares"){
+                    console.log("Corrosponding tweet found\n");
+                    results=item[0];
+                    results.replyFound=true;
+                    results.fraud=false;
+                    results.lastReply={"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime}
+                    tweetCollection.update(item[0],results);
+                  }
+                  else{
+                    console.log("Corrosponding tweet found\n");
+                    results=item[0];
+                    results.replyFound=true;
+                    results.fraud=true;
+                    results.lastReply={"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime}
+                    tweetCollection.update(item[0],results);
+                  }
+                }
+              }
+             });
+           }
+         }
         }
         var constants=db.collection("constants");
         constants.update({name:"lastID"},{name:"lastID",value:tweets.statuses[0].id_str});

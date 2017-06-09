@@ -9,9 +9,7 @@
     display: flex;
     justify-content: center; /* align horizontal */
     align-items: center; /* align vertical */
-
-
-  }
+}
 .wrapper {
 	margin-top: 80px;
   margin-bottom: 80px;
@@ -19,6 +17,18 @@
 .inner{
 	width:40%;
 	background-color:white;
+	border-radius:5px;
+}
+.tweetLink{
+  text-align: center;
+  margin-top: 1em;
+}
+.tweet{
+	background-color:#F5F5F5;
+	border-radius:5px;
+}
+.reply{
+	background-color:#E0E0E0;
 	border-radius:5px;
 }
 .form-signin {
