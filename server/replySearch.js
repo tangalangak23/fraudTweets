@@ -37,7 +37,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
               return 0;
           }
           if (tweets.statuses.length == 0) {
-              console.log("No Reply Mentions found\n");
+              console.log("No Reply Mentions found");
               return 0;
           }
 
@@ -85,8 +85,6 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                           }
                       }
                   }
-              } else{
-                console.log("No relevant replies")
               }
           }
       });

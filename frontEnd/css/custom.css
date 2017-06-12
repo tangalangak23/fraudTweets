@@ -10,6 +10,12 @@
     justify-content: center; /* align horizontal */
     align-items: center; /* align vertical */
 }
+.valid{
+  background-color:#81C784 !important;
+}
+.invalid{
+  background-color: #E57373 !important;
+}
 .wrapper {
 	margin-top: 80px;
   margin-bottom: 80px;

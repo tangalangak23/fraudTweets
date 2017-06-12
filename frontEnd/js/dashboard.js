@@ -5,12 +5,23 @@ var table=$("#tweets").DataTable({
         {data: "replyFound"},
         {data: "score"},
         {data: "fraud"}
-    ],"order": [[ 0, "desc" ]],
+    ],
+    "order": [[ 0, "desc" ]],
+    "searching": false,
     ajax: {
         url: "/getTweets",
         dataSrc: "",
         type: "GET",
     },
+    "fnCreatedRow": function (nRow, aData, iDisplayIndex) {
+      var value = aData.fraud;
+      if (value) {
+        $(nRow).addClass('invalid');
+      }
+      else if (value!=null) {
+        $(nRow).addClass('valid');
+      }
+    }
 })
 var id;
 $("#tweets tbody").on("click", "tr", function (event) {

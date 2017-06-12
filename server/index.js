@@ -33,10 +33,10 @@ var replyClient= new Twitter({
 });
 
 require("./search.js")(MongoClient,config,tweetClient,urlcodeJSON);
-reset();
+startSearch();
 
 require("./replySearch.js")(MongoClient,config,replyClient,urlcodeJSON);
-//singleReply();
+startReplyIndexing();
 
 require('./config/passport')(MongoClient, passport,mongo);
 app.use(cookieParser()); // read cookies (needed for auth)
