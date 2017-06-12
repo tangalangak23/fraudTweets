@@ -78,6 +78,7 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
 
 	this.startSearch=function(){
     handle="@sprint";
+		searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);
 		setInterval(function(){searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);},1200000);
 	}
 }

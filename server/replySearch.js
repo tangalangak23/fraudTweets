@@ -6,8 +6,10 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
   MongoClient.connect(url,function(err,db){
     db.collection("tweets").find({"replyFound":false}).toArray(function(err,item){
       db.close();
-      for(i=0;i<item.length;i++){
-        query(item[i].screenName,item[i]);
+      if(item.length>0){
+        for(i=0;i<item.length;i++){
+          query(item[i].screenName,item[i]);
+        }
       }
     });
 
@@ -26,12 +28,13 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
       var query = {
           q: "@"+handle,
           result_type: "recent",
-          count: 100,
+          count: 20,
       };
-      query = urlcodeJSON.encode(query);
+      query=urlcodeJSON.encode(query);
       client.get(("search/tweets.json?" + query), function (error, tweets) {
           if (error){
-              throw (error);
+              console.log(error);
+              return 0;
           }
           if (tweets.statuses.length == 0) {
               console.log("No Reply Mentions found\n");
@@ -49,7 +52,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
 
                   if (storedTweets.id == replyId) {
                       if (checkHelp(text)) {
-                          if (screenName == "sprintcare" || screenName == "verizon") {
+                          if (screenName == "sprintcare") {
                               console.log("Corrosponding tweet found and verified\n");
                               results = storedTweets;
                               results.replyFound = true;
@@ -82,6 +85,8 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                           }
                       }
                   }
+              } else{
+                console.log("No relevant replies")
               }
           }
       });
