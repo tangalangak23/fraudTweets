@@ -31,7 +31,7 @@ $("#tweets tbody").on("click", "tr", function (event) {
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
       $("#reply").show();
-      $("#replyId").text(data.lastReply.screenName);
+      $("#replyId").text("Reply From: "+data.lastReply.name);
       $("#replyText").text(data.lastReply.text);
       $("#replyText").append("<br>-@"+data.lastReply.screenName);
     }
