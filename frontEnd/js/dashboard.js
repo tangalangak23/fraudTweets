@@ -22,6 +22,7 @@ $("#tweets tbody").on("click", "tr", function (event) {
       $("#reply").show();
       $("#replyId").text(data.lastReply.screenName);
       $("#replyText").text(data.lastReply.text);
+      $("#replyText").append("<br>-@"+data.lastReply.screenName);
     }
     else{
       $("#reply").hide();
