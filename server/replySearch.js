@@ -16,7 +16,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
   });
 
   function checkHelp(text){
-    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message"];
+    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance"];
     for(i=0;i<terms.length;i++){
       if(text.includes(terms[i])){
         return true;
