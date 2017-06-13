@@ -33,12 +33,14 @@ $("#tweets tbody").on("click", "tr", function (event) {
   //window.open('https://twitter.com/'+name+'/status/'+id, '_blank');
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
+      $("#reset").hide();
       $("#reply").show();
       $("#replyId").text("Reply From: "+data.lastReply.name);
       $("#replyText").text(data.lastReply.text);
       $("#replyText").append("<br>-@"+data.lastReply.screenName);
     }
     else{
+      $("#reset").show();
       $("#reply").hide();
     }
     $("#name").text(data.name);
