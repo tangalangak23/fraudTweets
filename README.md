@@ -31,6 +31,8 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 
 ## Setup
 ##### 1) Setup config file like follows
+- server/config/authorization.json
+
 ```javascript
 {
   "url":"mongodb://localhost:27017/DBNAME",
