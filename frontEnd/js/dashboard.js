@@ -52,6 +52,13 @@ $("#tweets tbody").on("click", "tr", function (event) {
   });
 });
 
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    if (event.target == $("#detailedView")[0] ){
+        $("#detailedView").hide();
+    }
+}
+
 $("#delete").click(function(){
   $.post("/deleteRecord",{"id":id});
   location.reload();
