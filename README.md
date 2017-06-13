@@ -1,3 +1,5 @@
+
+
 # Fraud Detection for twitter
 The purpose of this program is to detect fraud on twitter. It does this by targeting a specific companies handle (for example @sprint). It then will read any twitter user that complains to @sprint and begins monitoring for people responding to that tweet that are offering help. If they are not an official supported account then they are marked as fraudulent.
 
@@ -28,7 +30,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 
 ## Setup
 ##### 1) Setup config file like follows
-```
+```javascript
 {
   "url":"mongodb://localhost:27017/DBNAME",
   "port":3000,
@@ -45,7 +47,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 ```
 #### 2) Create MongoDB collections
 
-```
+```javascript
 db.createCollection("tweets")
 db.createCollection("constants")
 db.createCollection("tweets")
@@ -55,13 +57,13 @@ db.createCollection("tweets")
 
 - Only required fields are uname and an md5 hashed password
 
-```
+```javascript
 {uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf"}
 ```
 #### 3) Constants collection in MongoDB
 - required for tracking searched tweets
 
-```
+```javascript
 {name:"lastID",value:"0"}
 ```
 
