@@ -21,7 +21,7 @@ var table=$("#tweets").DataTable({
       else if (value!=null) {
         $(nRow).addClass('valid');
       }
-      else if (aData.attempts>=20) {
+      else if (aData.attempts>=30) {
         $(nRow).addClass('toMany');
       }
     }

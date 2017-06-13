@@ -4,7 +4,7 @@ var config;
 function searchReply(MongoClient,config,url,client,urlcodeJSON){
   var tweets;
   MongoClient.connect(url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:20}}).toArray(function(err,item){
+    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -16,7 +16,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
   });
 
   function checkHelp(text){
-    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue"];
+    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue","contacting you","let us know"];
     for(i=0;i<terms.length;i++){
       if(text.includes(terms[i])){
         return true;
