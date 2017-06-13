@@ -22,9 +22,9 @@
         <tr>
           <th>Id</th>
           <th>Name</th>
-          <th>Text</th>
+          <th>Reply Found</th>
           <th>Score</th>
-          <th>Date Time</th>
+          <th>Fraud</th>
         </tr>
       </thead>
   </div>
@@ -35,15 +35,20 @@
           <span id="name">@sprint</span>
           <span style="float:right;" id="score">-N</span>
         </p>
-      </h2>
-      <p id="text">
+      </h2><h5>Original Tweet</h5>
+      <div class="container tweet" id="text">
         Hello World Tweet text will go here
-      </p>
-      <h5><a id="link" href="" target="new">Full Tweet</a><h5><br>
+      </div><div id="reply" style="display:none;"><br><h5 id="replyId">Reply From:</h5>
+      <div class="container reply" id="replyText">
+        ijkabsnd
+      </div><br></div>
+      <div class="tweetLink">
+      <h5><a id="link" href="" target="new">Full Tweet</a><h5><br></div>
       <p style="text-align:left;">
         <button class="btn btn-danger" id="delete">Delete</button>
+        <button class="btn btn-primary" id="reset">Reset</button>
         <span style="float:right;" id="score">
-          <button class="btn btn-primary" onClick="$('#detailedView').hide()">Dismiss</button>
+          <button class="btn btn-success" onClick="$('#detailedView').hide()">Dismiss</button>
         </span>
       </p>
     </div>

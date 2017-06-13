@@ -9,9 +9,16 @@
     display: flex;
     justify-content: center; /* align horizontal */
     align-items: center; /* align vertical */
-
-
-  }
+}
+.valid{
+  background-color:#81C784 !important;
+}
+.invalid{
+  background-color: #E57373 !important;
+}
+.toMany{
+  background-color: #64b5f6 !important;
+}
 .wrapper {
 	margin-top: 80px;
   margin-bottom: 80px;
@@ -19,6 +26,18 @@
 .inner{
 	width:40%;
 	background-color:white;
+	border-radius:5px;
+}
+.tweetLink{
+  text-align: center;
+  margin-top: 1em;
+}
+.tweet{
+	background-color:#F5F5F5;
+	border-radius:5px;
+}
+.reply{
+	background-color:#E0E0E0;
 	border-radius:5px;
 }
 .form-signin {

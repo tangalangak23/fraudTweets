@@ -1,6 +1,5 @@
 const ROOT_DIR = "../frontEnd/";
-const DEBUG=false;
-module.exports = function (app, passport, express, MongoClient,client,urlcodeJSON) {
+module.exports = function (app, passport, express, MongoClient,client,urlcodeJSON,DEBUG,url) {
     var path = require('path');
     app.use(express.static(ROOT_DIR));
 
@@ -29,6 +28,19 @@ module.exports = function (app, passport, express, MongoClient,client,urlcodeJSO
         tweets.find({"id":req.body.id}).toArray(function(err,item){
           db.close();
           res.json(item[0]);
+        });
+      });
+    });
+
+    app.post('/resetAttempts',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var tweets=db.collection("tweets");
+        tweets.find({"id":req.body.id}).toArray(function(err,item){
+          item[0].attempts=0;
+          tweets.update({"id": req.body.id}, item[0], function (err, item) {
+            console.log("Reset Attempts");
+          });
+          db.close();
         });
       });
     });
