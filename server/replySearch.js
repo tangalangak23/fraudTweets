@@ -4,7 +4,7 @@ var config;
 function searchReply(MongoClient,config,url,client,urlcodeJSON){
   var tweets;
   MongoClient.connect(url,function(err,db){
-    db.collection("tweets").find({"replyFound":false}).toArray(function(err,item){
+    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:20}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -17,7 +17,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
 
   function checkHelp(text){
     var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance"];
-    for(i=0;i<terms.length;i++){
+    for(i=0;i<5;i++){
       if(text.includes(terms[i])){
         return true;
       }
@@ -38,7 +38,14 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
               return 0;
           }
           if (tweets.statuses.length == 0) {
-              console.log("No Reply Mentions found");
+              storedTweets.attempts+=1;
+              MongoClient.connect(url, function (err, db) {
+                  collection = db.collection("tweets");
+                  collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
+                    console.log("No Reply Mentions found");
+                  });
+                  db.close();
+              });
               return 0;
           }
 
@@ -58,7 +65,8 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                               results = storedTweets;
                               results.replyFound = true;
                               results.fraud = false;
-                              results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime}
+                              results.attempts+=1;
+                              results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
                               delete results._id;
                               MongoClient.connect(url, function (err, db) {
                                   collection = db.collection("tweets");
@@ -74,6 +82,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                               results.replyFound = true;
                               results.fraud = true;
                               results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime}
+                              results.attempts+=1;
                               delete results._id;
                               MongoClient.connect(url, function (err, db) {
                                   collection = db.collection("tweets");
@@ -88,6 +97,14 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
                   }
               }
           }
+          storedTweets.attempts+=1;
+          MongoClient.connect(url, function (err, db) {
+              collection = db.collection("tweets");
+              collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
+                console.log("No Relevant Results");
+              });
+              db.close();
+          });
       });
   }
 }

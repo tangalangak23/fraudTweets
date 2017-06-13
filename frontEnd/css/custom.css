@@ -16,6 +16,9 @@
 .invalid{
   background-color: #E57373 !important;
 }
+.toMany{
+  background-color: #64b5f6 !important;
+}
 .wrapper {
 	margin-top: 80px;
   margin-bottom: 80px;

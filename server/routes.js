@@ -32,6 +32,19 @@ module.exports = function (app, passport, express, MongoClient,client,urlcodeJSO
       });
     });
 
+    app.post('/resetAttempts',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var tweets=db.collection("tweets");
+        tweets.find({"id":req.body.id}).toArray(function(err,item){
+          item[0].attempts=0;
+          tweets.update({"id": req.body.id}, item[0], function (err, item) {
+            console.log("Reset Attempts");
+          });
+          db.close();
+        });
+      });
+    });
+
     app.post('/deleteRecord',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");

@@ -21,6 +21,9 @@ var table=$("#tweets").DataTable({
       else if (value!=null) {
         $(nRow).addClass('valid');
       }
+      else if (aData.attempts>=20) {
+        $(nRow).addClass('toMany');
+      }
     }
 })
 var id;
@@ -49,5 +52,10 @@ $("#tweets tbody").on("click", "tr", function (event) {
 
 $("#delete").click(function(){
   $.post("/deleteRecord",{"id":id});
+  location.reload();
+});
+
+$("#reset").click(function(){
+  $.post("/resetAttempts",{"id":id});
   location.reload();
 });

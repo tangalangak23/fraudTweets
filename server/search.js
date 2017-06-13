@@ -44,7 +44,7 @@ function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
             if(score<0){
-              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false,"fraud":null,"lastReply":null});
+              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false,"fraud":null,"attempts":0,"lastReply":null});
            }
           }
         }
