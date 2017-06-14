@@ -1,7 +1,7 @@
 var assert=require('assert');
 var config;
 
-function searchReply(MongoClient,config,url,client,urlcodeJSON){
+function searchReply(MongoClient,config,url,client,urlcodeJSON,verified){
   var tweets;
   MongoClient.connect(url,function(err,db){
     db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
@@ -16,7 +16,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
   });
 
   function checkHelp(text){
-    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue","contacting you","let us know"];
+    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue","contacting you","let us know","worries us"];
     for(i=0;i<terms.length;i++){
       if(text.includes(terms[i])){
         return true;
@@ -60,7 +60,7 @@ function searchReply(MongoClient,config,url,client,urlcodeJSON){
 
                   if (storedTweets.id == replyId) {
                       if (checkHelp(text)) {
-                          if (screenName == "sprintcare") {
+                          if (verified.includes(screenName)) {
                               console.log("Corrosponding tweet found and verified\n");
                               results = storedTweets;
                               results.replyFound = true;
@@ -113,10 +113,22 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
 	url=config.url;
 
 	this.singleReply=function(){
-		searchReply(MongoClient,config,url,client,urlcodeJSON);
+    MongoClient.connect(url, function (err, db) {
+        collection = db.collection("constants");
+        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
+          db.close();
+          searchReply(MongoClient,config,url,client,urlcodeJSON,item[0].value.toString());
+        });
+    });
 	}
 
 	this.startReplyIndexing=function(){
-		setInterval(function(){searchReply(MongoClient,config,url,client,urlcodeJSON);},60000);
+    MongoClient.connect(url, function (err, db) {
+        collection = db.collection("constants");
+        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
+          db.close();
+          setInterval(function(){searchReply(MongoClient,config,url,client,urlcodeJSON,item[0].value.toString());},60000);
+        });
+    });
 	}
 }
