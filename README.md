@@ -64,8 +64,9 @@ db.createCollection("tweets")
 {uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf"}
 ```
 #### 3) Constants collection in MongoDB
-- required for tracking searched tweets
+- required for tracking searched tweets and verified handles
 
 ```javascript
 {name:"lastID",value:"0"}
+{name:"verifiedHandles",value:["handle",""]}
 ```

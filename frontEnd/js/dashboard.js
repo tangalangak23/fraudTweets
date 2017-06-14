@@ -7,7 +7,7 @@ var table=$("#tweets").DataTable({
         {data: "fraud"}
     ],
     "order": [[ 0, "desc" ]],
-    "searching": false,
+    "searching": true,
     ajax: {
         url: "/getTweets",
         dataSrc: "",
