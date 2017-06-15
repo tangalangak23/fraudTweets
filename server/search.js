@@ -43,8 +43,8 @@ function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
             score=sentiment(tweets.statuses[i].text).score;
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
-            if(score<1){
-              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false});
+            if(score<0){
+              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false,"fraud":null,"attempts":0,"lastReply":null});
            }
           }
         }
@@ -72,7 +72,8 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
 	}
 
 	this.singleSearch=function(){
-		searchTweets(MongoClient,config,url,client,urlcodeJSON);
+    handle="@sprint";
+		searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);
 	}
 
 	this.startSearch=function(){

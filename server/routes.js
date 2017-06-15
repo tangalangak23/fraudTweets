@@ -1,11 +1,14 @@
 const ROOT_DIR = "../frontEnd/";
-const DEBUG=false;
-module.exports = function (app, passport, express, MongoClient,client,urlcodeJSON) {
+module.exports = function (app, passport, express, MongoClient,client,urlcodeJSON,DEBUG,url,mongo,md5) {
     var path = require('path');
     app.use(express.static(ROOT_DIR));
 
     app.use('/home',isLoggedIn, function(req, res) {
       send(res, "dashboard.html");
+    });
+
+    app.use('/configHandles',isLoggedIn, function(req, res) {
+      send(res, "handles.html");
     });
 
     app.post('/login', passport.authenticate('local-login', {
@@ -23,12 +26,91 @@ module.exports = function (app, passport, express, MongoClient,client,urlcodeJSO
       });
     });
 
+    app.get('/getUser',isLoggedIn, function(req, res) {
+      temp=req.user;
+      delete temp.password;
+      delete temp._id;
+      res.json(temp);
+    });
+
+    app.get('/getHandles',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        collection.find({name:"verifiedHandles"}).toArray(function(err,item){
+          db.close();
+          res.json(item[0]);
+        });
+      });
+    });
+
+    app.post('/updateHandles',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newHandles}, function (err, item) {
+          console.log("Updated handles");
+        });
+        db.close();
+      });
+    });
+
+    app.post('/updateUser',isLoggedIn, function(req, res) {
+      req.user.name=req.body.name;
+      req.user.uname=req.body.uname;
+      req.user.email=req.body.email;
+      var id=new mongo.ObjectID(req.user._id);
+      temp=req.user;
+      delete temp._id;
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("users");
+        collection.update({_id:id },temp, function (err, item) {
+          console.log("Updated user info");
+        });
+        db.close();
+      });
+      res.redirect("/home");
+    });
+
+    app.post('/updatePassword',isLoggedIn, function(req, res) {
+      temp=req.body.currentPassword;
+      temp=md5(temp);
+      if(req.user.password==temp){
+        var id=new mongo.ObjectID(req.user._id);
+        temp=req.user;
+        delete temp._id;
+        temp.password=md5(req.body.newPassword);
+        MongoClient.connect(url,function(err,db){
+          var collection=db.collection("users");
+          collection.update({_id:id },temp, function (err, item) {
+            console.log("Updated user password");
+          });
+          db.close();
+        });
+        res.redirect("/home");
+      }
+      else{
+        res.redirect("/home");
+      }
+    });
+
     app.post('/getTweetInfo',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
         tweets.find({"id":req.body.id}).toArray(function(err,item){
           db.close();
           res.json(item[0]);
+        });
+      });
+    });
+
+    app.post('/resetAttempts',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var tweets=db.collection("tweets");
+        tweets.find({"id":req.body.id}).toArray(function(err,item){
+          item[0].attempts=0;
+          tweets.update({"id": req.body.id}, item[0], function (err, item) {
+            console.log("Reset Attempts");
+          });
+          db.close();
         });
       });
     });

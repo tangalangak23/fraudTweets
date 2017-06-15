@@ -9,24 +9,39 @@ var app = express();
 var fs = require('fs');
 var MongoClient=require('mongodb').MongoClient;
 var mongo=require('mongodb');
+var md5 = require('md5');
 var config;
 try {
 	config = JSON.parse(fs.readFileSync('./config/authorization.json', 'utf8'));
 } catch (e) {
 	console.log('No config file found. Using defaults.');
 }
+const DEBUG=config.debug;
+const url=config.url;
 
-var client= new Twitter({
-	consumer_key:config.CONSUMER_KEY,
-	consumer_secret:config.CONSUMER_SECRET,
-	access_token_key: config.ACCESS_KEY,
-	access_token_secret: config.ACCESS_SECRET
+var tweetClient= new Twitter({
+	consumer_key:config.CONSUMER_KEY1,
+	consumer_secret:config.CONSUMER_SECRET1,
+	access_token_key: config.ACCESS_KEY1,
+	access_token_secret: config.ACCESS_SECRET1
 });
 
-require("./search.js")(MongoClient,config,client,urlcodeJSON);
-startSearch();
+var replyClient= new Twitter({
+	consumer_key:config.CONSUMER_KEY2,
+	consumer_secret:config.CONSUMER_SECRET2,
+	access_token_key: config.ACCESS_KEY2,
+	access_token_secret: config.ACCESS_SECRET2
+});
 
-require('./config/passport')(MongoClient, passport,mongo);
+require("./search.js")(MongoClient,config,tweetClient,urlcodeJSON);
+//startSearch();
+
+require("./replySearch.js")(MongoClient,config,replyClient,urlcodeJSON);
+//startReplyIndexing();
+
+//singleReply();
+
+require('./config/passport')(MongoClient, passport,mongo,md5);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true
@@ -42,7 +57,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./routes.js')(app,passport, express, MongoClient,client,urlcodeJSON);
+require('./routes.js')(app,passport, express, MongoClient,tweetClient,urlcodeJSON,DEBUG,url,mongo,md5);
 var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);
