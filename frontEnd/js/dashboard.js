@@ -7,7 +7,7 @@ var table=$("#tweets").DataTable({
         {data: "fraud"}
     ],
     "order": [[ 0, "desc" ]],
-    "searching": false,
+    "searching": true,
     ajax: {
         url: "/getTweets",
         dataSrc: "",
@@ -21,7 +21,7 @@ var table=$("#tweets").DataTable({
       else if (value!=null) {
         $(nRow).addClass('valid');
       }
-      else if (aData.attempts>=30) {
+      else if (aData.attempts>=20) {
         $(nRow).addClass('toMany');
       }
     }
