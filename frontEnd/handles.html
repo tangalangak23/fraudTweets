@@ -2,14 +2,25 @@
 <html lang=en>
 <head>
   <title>Verified Handles</title>
-   <link rel=stylesheet href=css/bootstrap.min.css>
-   <link rel=stylesheet href=css/custom.css>
-   <script src=js/boostrap.min.js></script>
-   <script src=js/jquery.min.js></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <link rel=stylesheet href=css/custom.css>
 </head>
 <body>
   <div class="header">
-    <h2 style="text-align:left;"><a href="/home"><b>Fraud</b>Tweets</a><span style="float:right;"><a href="/logout">Logout</a></span></h2>
+    <h2 style="text-align:left;"><a href="/home"><b>Fraud</b>Tweets</a><span style="float:right;">
+      <div class="dropdown">
+      <b data-toggle="dropdown">User <img src="img/person.png" style="height:40px"></b>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a id="generalUAC">General Account Settings</a></li>
+          <li><a id="changePassword">Change Password</a></li>
+          <li class="divider"></li>
+          <li><a href="/logout">Logout</a></li>
+        </ul>
+      </div>
+    </span></h2>
   </div>
   <div class="navBar">
     <h5 class="navLink">@Verified Handles</h5>
@@ -33,6 +44,42 @@
         <tr><td><button class='btn btn-success' id='add'>Add Handle</button></td><td><button class='btn btn-primary' id='update'>Update</button></td></tr>
       </tfoot>
     </table>
+  </div>
+
+  <div id='generalAccount' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span id="user">User Name</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;"><form method="post" action="/updateUser">
+        <label>Name</label><input type="text" id="usersName" class="form-control" value="" name="name"><br>
+        <label>User Name</label><input type="text" id="uName" class="form-control" name="uname"><br>
+        <label>E-mail</label><input type="text" id="email" class="form-control" name="email"><br>
+        <input type="submit" class="btn btn-primary" value="Update Info">
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#generalAccount').hide()" type=button>Dismiss</button></span>
+      </form></div>
+    </div>
+  </div>
+
+  <div id='passwordChange' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span id="user">User Name</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;">
+        <label>Current Password</label><input type="password" class="form-control" placeholder="Current Password" id="current">
+        <label>New Password</label><input type="password" class="form-control" placeholder="New Password" id="newPass"><br>
+        <label>Re-Type New Password</label><input type="password" class="form-control" placeholder="Re-Type New Password" id="newPass2"><br>
+        <button class="btn btn-primary" id="passwordForm">Update Info</button>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').hide()" type=button>Dismiss</button></span>
+      </div>
+      <div class="tweetLink">
+      <h5><b id="message"></b></h5></div>
+    </div>
   </div>
 <script src="js/handles.js"></script>
 </body>

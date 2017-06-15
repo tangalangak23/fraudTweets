@@ -9,6 +9,7 @@ var app = express();
 var fs = require('fs');
 var MongoClient=require('mongodb').MongoClient;
 var mongo=require('mongodb');
+var md5 = require('md5');
 var config;
 try {
 	config = JSON.parse(fs.readFileSync('./config/authorization.json', 'utf8'));
@@ -33,14 +34,14 @@ var replyClient= new Twitter({
 });
 
 require("./search.js")(MongoClient,config,tweetClient,urlcodeJSON);
-startSearch();
+//startSearch();
 
 require("./replySearch.js")(MongoClient,config,replyClient,urlcodeJSON);
-startReplyIndexing();
+//startReplyIndexing();
 
 //singleReply();
 
-require('./config/passport')(MongoClient, passport,mongo);
+require('./config/passport')(MongoClient, passport,mongo,md5);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true
@@ -56,7 +57,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./routes.js')(app,passport, express, MongoClient,tweetClient,urlcodeJSON,DEBUG,url);
+require('./routes.js')(app,passport, express, MongoClient,tweetClient,urlcodeJSON,DEBUG,url,mongo,md5);
 var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);

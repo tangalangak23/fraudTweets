@@ -32,7 +32,47 @@ $("#update").click(function(){
       }
     }
   });
-  console.log(handles)
   $.post("/updateHandles",{"newHandles":handles});
   location.reload();
+});
+
+window.onclick = function (event) {
+    if (event.target == $("#generalAccount")[0] ){
+        $("#generalAccount").fadeOut();
+    }
+    else if (event.target == $("#passwordChange")[0] ){
+        $("#passwordChange").fadeOut();
+    }
+}
+
+$("#generalUAC").click(function(){
+  $.get("/getUser",function(data){
+    $("#usersName").val(data.name);
+    $("#uName").val(data.uname);
+    $("#email").val(data.email);
+    $("#generalAccount").fadeIn();
+  });
+});
+
+$("#changePassword").click(function(){
+  $("#passwordChange").fadeIn();
+});
+
+$('#passwordForm').click(function(ev) {
+  current=$("#current").val();
+  newPass=$("#newPass").val();
+  newPass2=$("#newPass2").val();
+  console.log(current+newPass)
+  if(current==newPass){
+    $("#message").text("New password Matches old password");
+  }
+  else if(newPass!=newPass2){
+    $("#message").text("New passwords do not match");
+  }
+  else{
+    $("#message").text("Updating Password");
+    $.post("/updatePassword",{currentPassword:current,newPassword:newPass},function(data){
+
+    });
+  }
 });

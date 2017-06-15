@@ -48,14 +48,20 @@ $("#tweets tbody").on("click", "tr", function (event) {
     $("#text").text(data.text);
     $("#text").append("<br>-@"+data.screenName);
     $("#link").attr("href",'https://twitter.com/'+name+'/status/'+id);
-    $("#detailedView").show();
+    $("#detailedView").fadeIn();
   });
 });
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
     if (event.target == $("#detailedView")[0] ){
-        $("#detailedView").hide();
+        $("#detailedView").fadeOut();
+    }
+    else if (event.target == $("#generalAccount")[0] ){
+        $("#generalAccount").fadeOut();
+    }
+    else if (event.target == $("#passwordChange")[0] ){
+        $("#passwordChange").fadeOut();
     }
 }
 
@@ -67,4 +73,36 @@ $("#delete").click(function(){
 $("#reset").click(function(){
   $.post("/resetAttempts",{"id":id});
   location.reload();
+});
+
+$("#generalUAC").click(function(){
+  $.get("/getUser",function(data){
+    $("#usersName").val(data.name);
+    $("#uName").val(data.uname);
+    $("#email").val(data.email);
+    $("#generalAccount").fadeIn();
+  });
+});
+
+$("#changePassword").click(function(){
+  $("#passwordChange").fadeIn();
+});
+
+$('#passwordForm').click(function(ev) {
+  current=$("#current").val();
+  newPass=$("#newPass").val();
+  newPass2=$("#newPass2").val();
+  console.log(current+newPass)
+  if(current==newPass){
+    $("#message").text("New password Matches old password");
+  }
+  else if(newPass!=newPass2){
+    $("#message").text("New passwords do not match");
+  }
+  else{
+    $("#message").text("Updating Password");
+    $.post("/updatePassword",{currentPassword:current,newPassword:newPass},function(data){
+
+    });
+  }
 });
