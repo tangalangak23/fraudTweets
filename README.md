@@ -50,7 +50,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 ```javascript
 db.createCollection("tweets")
 db.createCollection("constants")
-db.createCollection("tweets")
+db.createCollection("users")
 ```
 
 #### 3) User collection in MongoDB
