@@ -38,6 +38,8 @@ startSearch();
 require("./replySearch.js")(MongoClient,config,replyClient,urlcodeJSON);
 startReplyIndexing();
 
+//singleReply();
+
 require('./config/passport')(MongoClient, passport,mongo);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
