@@ -28,3 +28,6 @@ function editDistance(st1,st2){
   }
   return(results[st1.length-1][st2.length-1]);
 }
+
+var i=editDistance("GUMBO","GAMBOL");
+console.log(i);
