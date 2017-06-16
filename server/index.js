@@ -34,10 +34,10 @@ var replyClient= new Twitter({
 });
 
 require("./search.js")(MongoClient,config,tweetClient,urlcodeJSON);
-//startSearch();
+startSearch();
 
 require("./replySearch.js")(MongoClient,config,replyClient,urlcodeJSON);
-//startReplyIndexing();
+startReplyIndexing();
 
 //singleReply();
 
