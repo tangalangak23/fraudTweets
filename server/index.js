@@ -46,7 +46,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./routes.js')(app,passport, express, MongoClient,urlcodeJSON,DEBUG,url,mongo,md5);
+require('./routes.js')(app,passport, express, MongoClient,urlcodeJSON,DEBUG,config.url,mongo,md5);
 var port=parseInt(config.port);
 app.listen(port, function () {
     console.log('Example app listening on port' + port);
