@@ -1,3 +1,5 @@
+#! This is a development build, use at your own risk !
+
 # Fraud Detection for twitter
 The purpose of this program is to detect fraud on twitter. It does this by targeting a specific companies handle (for example @sprint). It then will read any twitter user that complains to @sprint and begins monitoring for people responding to that tweet that are offering help. If they are not an official supported account then they are marked as fraudulent.
 
@@ -34,15 +36,20 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 {
   "url":"mongodb://localhost:27017/DBNAME",
   "port":3000,
-  "debug":false, //optional
-  "CONSUMER_KEY1":"",
-  "CONSUMER_SECRET1":"",
-  "ACCESS_KEY1":"",
-  "ACCESS_SECRET1":"",
-  "CONSUMER_KEY2":"",
-  "CONSUMER_SECRET2":"",
-  "ACCESS_KEY2":"",
-  "ACCESS_SECRET2":""
+  "debug":false,
+  "keys":[
+    {
+      "CONSUMER_KEY":"",
+      "CONSUMER_SECRET":"",
+      "ACCESS_KEY":"",
+      "ACCESS_SECRET":""
+    },{
+      "CONSUMER_KEY":"",
+      "CONSUMER_SECRET":"",
+      "ACCESS_KEY":"",
+      "ACCESS_SECRET":""
+    }
+  ]
 }
 ```
 #### 2) Create MongoDB collections
@@ -64,6 +71,6 @@ db.createCollection("users")
 - required for tracking searched tweets and verified handles
 
 ```javascript
-{name:"lastID",value:"0"}
+{name:"lastID","handle":"SEARCH TERM",value:"0"}
 {name:"verifiedHandles",value:["handle",""]}
 ```

@@ -2,11 +2,11 @@ var assert=require('assert');
 var Twitter=require("twitter");
 var config;
 
-function searchReply(MongoClient,config,url,urlcodeJSON,verified){
+function searchReply(MongoClient,config,urlcodeJSON,verified){
   var tweets;
   
-  MongoClient.connect(url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:20}}).toArray(function(err,item){
+  MongoClient.connect(config.url,function(err,db){
+    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -48,7 +48,7 @@ function searchReply(MongoClient,config,url,urlcodeJSON,verified){
           }
           if (tweets.statuses.length == 0) {
               storedTweets.attempts+=1;
-              MongoClient.connect(url, function (err, db) {
+              MongoClient.connect(config.url, function (err, db) {
                   collection = db.collection("tweets");
                   collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
                     console.log("No Reply Mentions found");
@@ -69,45 +69,32 @@ function searchReply(MongoClient,config,url,urlcodeJSON,verified){
 
                   if (storedTweets.id == replyId) {
                       if (checkHelp(text)) {
-                          if (verified.includes(screenName)) {
-                              console.log("Corrosponding tweet found and verified\n");
-                              results = storedTweets;
-                              results.replyFound = true;
-                              results.fraud = false;
-                              results.attempts+=1;
-                              results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
-                              delete results._id;
-                              MongoClient.connect(url, function (err, db) {
-                                  collection = db.collection("tweets");
-                                  collection.update({id: results.id}, results, function (err, item) {
-                                    console.log("Successfully Updated");
-                                  });
-                                  db.close();
-                              });
-                              break;
-                          } else {
-                              console.log("Corrosponding tweet found\n");
-                              results = storedTweets;
-                              results.replyFound = true;
-                              results.fraud = true;
-                              results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime}
-                              results.attempts+=1;
-                              delete results._id;
-                              MongoClient.connect(url, function (err, db) {
-                                  collection = db.collection("tweets");
-                                  collection.update({id: results.id}, results, function (err, item) {
-                                    console.log("Successfully Updated");
-                                  });
-                                  db.close();
-                              });
-                              break;
-                          }
+                        results = storedTweets;
+                        if (verified.includes(screenName)) {
+                            console.log("Corrosponding tweet found and verified\n");
+                            results.fraud = false;
+                        } else {
+                            console.log("Corrosponding tweet found and not verified\n");
+                            results.fraud = true;
+                        }
+                        results.replyFound = true;
+                        results.attempts+=1;
+                        results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
+                        delete results._id;
+                        MongoClient.connect(config.url, function (err, db) {
+                            collection = db.collection("tweets");
+                            collection.update({id: results.id}, results, function (err, item) {
+                            console.log("Successfully Updated");
+                            });
+                            db.close();
+                        });
+                        break;
                       }
                   }
               }
           }
           storedTweets.attempts+=1;
-          MongoClient.connect(url, function (err, db) {
+          MongoClient.connect(config.url, function (err, db) {
               collection = db.collection("tweets");
               collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
                 console.log("No Relevant Results");
@@ -115,28 +102,27 @@ function searchReply(MongoClient,config,url,urlcodeJSON,verified){
               db.close();
           });
       });
-  }
+    }
 }
 
 module.exports=function(MongoClient,config,urlcodeJSON){
-	url=config.url;
 
 	this.singleReply=function(){
-    MongoClient.connect(url, function (err, db) {
+    MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("constants");
         collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
           db.close();
-          searchReply(MongoClient,config,url,urlcodeJSON,item[0].value.toString());
+          searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());
         });
     });
 	}
 
 	this.startReplyIndexing=function(){
-    MongoClient.connect(url, function (err, db) {
+    MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("constants");
         collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
           db.close();
-          setInterval(function(){searchReply(MongoClient,config,url,urlcodeJSON,item[0].value.toString());},60000);
+          setInterval(function(){searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());},60000);
         });
     });
 	}

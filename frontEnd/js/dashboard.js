@@ -2,6 +2,7 @@ var table=$("#tweets").DataTable({
     columns: [
         {data: "id"},
         {data: "screenName"},
+        {data:"handle"},
         {data: "replyFound"},
         {data: "score"},
         {data: "fraud"}
@@ -21,7 +22,7 @@ var table=$("#tweets").DataTable({
       else if (value!=null) {
         $(nRow).addClass('valid');
       }
-      else if (aData.attempts>=20) {
+      else if (aData.attempts>=30) {
         $(nRow).addClass('toMany');
       }
     }

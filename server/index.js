@@ -19,12 +19,16 @@ const DEBUG=config.debug;
 const url=config.url;
 
 require("./search.js")(MongoClient,config,urlcodeJSON);
-//startSearching();
 
 require("./replySearch.js")(MongoClient,config,urlcodeJSON);
-//startReplyIndexing();
 
-singleReply();
+startSearch();
+startReplyIndexing();
+
+//singleSearch();
+//singleReply();
+
+//reset();
 
 require('./config/passport')(MongoClient, passport,mongo,md5);
 app.use(cookieParser()); // read cookies (needed for auth)
