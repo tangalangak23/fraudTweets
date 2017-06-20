@@ -6,7 +6,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
   var tweets;
   
   MongoClient.connect(config.url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
+    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:15}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
