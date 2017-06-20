@@ -28,7 +28,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
 
   function query(handle,lastID,client){
     var query={
-      q:handle,
+      q:encodeURIComponent(handle),
       result_type:"recent",
       count:100,
       since_id:lastID

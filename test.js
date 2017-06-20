@@ -1,33 +1,32 @@
-//Levinshtein distance aka edit distance calculator
-
-function editDistance(st1,st2){
-  var results=[[]];
-  for(i=0;i<=st2.length;i++){
-    results[i]=new Array(st1.length+1);
-  }
-  for(i=0;i<=st2.length;i++){
-    results[i][0]=i;
-  }
-  for(i=0;i<=st1.length;i++){
-    results[0][i]=i;
-  }
-
-
-  for(i=1;i<=st1.length+1;i++){
-    for(j=1;j<st2.length;j++){
-      cost=0;
-      if(st1[i-1]!=st2[j-1]){
-        cost=1;
-      }
-      temp=[];
-      temp.push(results[i-1][j]+1);
-      temp.push(results[i][j-1]+1);
-      temp.push(results[i-1][j-1]+cost);
-      results[i][j]=Math.min.apply(Math,temp);
-    }
-  }
-  return(results[st1.length-1][st2.length-1]);
+var urlcodeJSON=require("urlcode-json");
+var fs = require('fs');
+var Twitter=require("twitter");
+var config;
+try {
+	config = JSON.parse(fs.readFileSync('./server/config/authorization.json', 'utf8'));
+} catch (e) {
+	console.log('No config file found. Using defaults.');
 }
 
-var i=editDistance("GUMBO","GAMBOL");
-console.log(i);
+client=new Twitter({
+  consumer_key:config.keys[3].CONSUMER_KEY,
+  consumer_secret:config.keys[3].CONSUMER_SECRET,
+  access_token_key: config.keys[3].ACCESS_KEY,
+  access_token_secret: config.keys[3].ACCESS_SECRET
+});
+
+var query={
+  screen_name:"_carloslehder_",
+  include_entities:false
+};
+query=urlcodeJSON.encode(query);
+
+client.get(("users/show.json?"+query),function(error,tweets){
+  if(error){
+    console.log(error);
+    return -1;
+  }
+  console.log(tweets);
+});
+
+console.log(encodeURIComponent("#spring"))

@@ -21,8 +21,41 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
         }
       }
     });
-
   });
+
+  function fraudScore(name,valid,urlcodeJSON,results){
+    var score=30;
+    var scores=[];
+    var query={
+        screen_name:name,
+        include_entities:false
+    };
+    query=urlcodeJSON.encode(query);
+
+    client.get(("users/show.json?"+query),function(error,tweets){
+        if(error){
+            console.log(error);
+            return -1;
+        }
+        if(tweets.verified){
+            results.fraud= "%"+score;
+        }
+        else{
+            for(i=0;i<valid.length;i++){
+                scores.push(editDistance(name,valid[i]));
+            }
+            score=score+(70/Math.min.apply(Math,scores).toFixed(2));
+            results.fraud= "%"+score;
+        }
+        MongoClient.connect(config.url, function (err, db) {
+            collection = db.collection("tweets");
+            collection.update({id: results.id}, results, function (err, item) {
+                console.log("Successfully Updated");
+            });
+            db.close();
+        });
+    });
+}
 
   function query(handle, storedTweets,client) {
       var query = {
@@ -60,24 +93,24 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                   if (storedTweets.id == replyId) {
                       if (checkHelp(text)) {
                         results = storedTweets;
-                        if (verified.includes(screenName)) {
-                            console.log("Corrosponding tweet found and verified\n");
-                            results.fraud = "%0";
-                        } else {
-                            console.log("Corrosponding tweet found and not verified\n");
-                            results.fraud = "%"+fraudScore(screenName,verified);
-                        }
                         results.replyFound = true;
                         results.attempts+=1;
                         results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
                         delete results._id;
-                        MongoClient.connect(config.url, function (err, db) {
-                            collection = db.collection("tweets");
-                            collection.update({id: results.id}, results, function (err, item) {
-                            console.log("Successfully Updated");
+                        if (verified.includes(screenName)) {
+                            console.log("Corrosponding tweet found and verified\n");
+                            results.fraud = "%0";
+                            MongoClient.connect(config.url, function (err, db) {
+                                collection = db.collection("tweets");
+                                collection.update({id: results.id}, results, function (err, item) {
+                                console.log("Successfully Updated");
                             });
                             db.close();
                         });
+                        } else {
+                            console.log("Corrosponding tweet found and not verified\n");
+                            results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
+                        }
                         break;
                       }
                   }
@@ -132,16 +165,6 @@ function checkHelp(text){
         }
     }
     return false;
-}
-
-function fraudScore(name,valid){
-    var score=50;
-    var scores=[];
-    for(i=0;i<valid.length;i++){
-        scores.push(editDistance(name,valid[i]));
-    }
-    score=score+(50/Math.min.apply(Math,scores).toFixed(2));
-    return "%"+score;
 }
 
 module.exports=function(MongoClient,config,urlcodeJSON){
