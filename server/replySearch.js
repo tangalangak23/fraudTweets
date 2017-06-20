@@ -6,7 +6,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
   var tweets;
   
   MongoClient.connect(config.url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:15}}).toArray(function(err,item){
+    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -23,16 +23,6 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
     });
 
   });
-
-  function checkHelp(text){
-    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue","contacting you","let us know","worries us"];
-    for(i=0;i<terms.length;i++){
-      if(text.includes(terms[i])){
-        return true;
-      }
-    }
-    return false;
-  }
 
   function query(handle, storedTweets,client) {
       var query = {
@@ -72,10 +62,10 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                         results = storedTweets;
                         if (verified.includes(screenName)) {
                             console.log("Corrosponding tweet found and verified\n");
-                            results.fraud = false;
+                            results.fraud = "%0";
                         } else {
                             console.log("Corrosponding tweet found and not verified\n");
-                            results.fraud = true;
+                            results.fraud = "%"+fraudScore(screenName,verified);
                         }
                         results.replyFound = true;
                         results.attempts+=1;
@@ -103,6 +93,55 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
           });
       });
     }
+}
+
+function editDistance(st1,st2){
+  var results=[[]];
+  for(i=0;i<=st2.length;i++){
+    results[i]=new Array(st1.length+1);
+  }
+  for(i=0;i<=st2.length;i++){
+    results[i][0]=i;
+  }
+  for(i=0;i<=st1.length;i++){
+    results[0][i]=i;
+  }
+
+
+  for(i=1;i<=st1.length+1;i++){
+    for(j=1;j<st2.length;j++){
+      cost=0;
+      if(st1[i-1]!=st2[j-1]){
+        cost=1;
+      }
+      temp=[];
+      temp.push(results[i-1][j]+1);
+      temp.push(results[i][j-1]+1);
+      temp.push(results[i-1][j-1]+cost);
+      results[i][j]=Math.min.apply(Math,temp);
+    }
+  }
+  return(results[st1.length-1][st2.length-1]);
+}
+
+function checkHelp(text){
+    var terms=["DM","Direct Message","help","helps","assist","feedback","customer","work with you","feel this way","concerning","private message","assistance","seems to be","issue","contacting you","let us know","worries us"];
+    for(i=0;i<terms.length;i++){
+        if(text.includes(terms[i])){
+        return true;
+        }
+    }
+    return false;
+}
+
+function fraudScore(name,valid){
+    var score=50;
+    var scores=[];
+    for(i=0;i<valid.length;i++){
+        scores.push(editDistance(name,valid[i]));
+    }
+    score=score+(50/Math.min.apply(Math,scores).toFixed(2));
+    return "%"+score;
 }
 
 module.exports=function(MongoClient,config,urlcodeJSON){

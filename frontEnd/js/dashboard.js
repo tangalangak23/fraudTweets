@@ -16,13 +16,14 @@ var table=$("#tweets").DataTable({
     },
     "fnCreatedRow": function (nRow, aData, iDisplayIndex) {
       var value = aData.fraud;
-      if (value) {
-        $(nRow).addClass('invalid');
-      }
-      else if (value!=null) {
+      console.log(value)
+      if (value=="%0") {
         $(nRow).addClass('valid');
       }
-      else if (aData.attempts>=15) {
+      else if (value!=null) {
+        $(nRow).addClass('invalid');
+      }
+      else if (aData.attempts>=30) {
         $(nRow).addClass('toMany');
       }
     }

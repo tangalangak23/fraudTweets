@@ -23,7 +23,7 @@ function editDistance(st1,st2){
       temp.push(results[i-1][j]+1);
       temp.push(results[i][j-1]+1);
       temp.push(results[i-1][j-1]+cost);
-      results[i][j]=Math.min(...temp);
+      results[i][j]=Math.min.apply(Math,temp);
     }
   }
   return(results[st1.length-1][st2.length-1]);
