@@ -1,15 +1,23 @@
 var assert=require('assert');
+var Twitter=require("twitter");
 var config;
 
-function searchReply(MongoClient,config,url,client,urlcodeJSON,verified){
+function searchReply(MongoClient,config,url,urlcodeJSON,verified){
   var tweets;
+  
   MongoClient.connect(url,function(err,db){
     db.collection("tweets").find({"replyFound":false,"attempts":{$lt:20}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
-console.log(item.length);
         for(i=0;i<item.length;i++){
-          query(item[i].screenName,item[i]);
+            keyNum=i%config.keys.length;
+            client=new Twitter({
+                consumer_key:config.keys[keyNum].CONSUMER_KEY,
+                consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+                access_token_key: config.keys[keyNum].ACCESS_KEY,
+                access_token_secret: config.keys[keyNum].ACCESS_SECRET
+            });
+          query(item[i].screenName,item[i],client);
         }
       }
     });
@@ -26,7 +34,7 @@ console.log(item.length);
     return false;
   }
 
-  function query(handle, storedTweets) {
+  function query(handle, storedTweets,client) {
       var query = {
           q: "@"+handle,
           result_type: "recent",
@@ -110,7 +118,7 @@ console.log(item.length);
   }
 }
 
-module.exports=function(MongoClient,config,client,urlcodeJSON){
+module.exports=function(MongoClient,config,urlcodeJSON){
 	url=config.url;
 
 	this.singleReply=function(){
@@ -118,7 +126,7 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
         collection = db.collection("constants");
         collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
           db.close();
-          searchReply(MongoClient,config,url,client,urlcodeJSON,item[0].value.toString());
+          searchReply(MongoClient,config,url,urlcodeJSON,item[0].value.toString());
         });
     });
 	}
@@ -128,7 +136,7 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
         collection = db.collection("constants");
         collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
           db.close();
-          setInterval(function(){searchReply(MongoClient,config,url,client,urlcodeJSON,item[0].value.toString());},60000);
+          setInterval(function(){searchReply(MongoClient,config,url,urlcodeJSON,item[0].value.toString());},60000);
         });
     });
 	}

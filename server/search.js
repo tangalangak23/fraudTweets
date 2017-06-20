@@ -1,10 +1,19 @@
 var sentiment=require("sentiment");
 var assert=require('assert');
+var Twitter=require("twitter");
 var config;
 var lastID;
 
 
-function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
+function searchTweets(MongoClient,config,url,handle,urlcodeJSON){
+  keyNum=Math.floor(Math.random() * config.keys.length);
+  client=new Twitter({
+    consumer_key:config.keys[keyNum].CONSUMER_KEY,
+    consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+    access_token_key: config.keys[keyNum].ACCESS_KEY,
+    access_token_secret: config.keys[keyNum].ACCESS_SECRET
+  });
+
   MongoClient.connect(url,function(err,db){
     var constants=db.collection("constants");
     constants.find({"name":"lastID"}).toArray(function(err,item){
@@ -58,7 +67,7 @@ function searchTweets(MongoClient,config,url,handle,client,urlcodeJSON){
   setTimeout(query,500);
 }
 
-module.exports=function(MongoClient,config,client,urlcodeJSON){
+module.exports=function(MongoClient,config,urlcodeJSON){
 	url=config.url;
 
 	this.reset = function(){
@@ -73,12 +82,12 @@ module.exports=function(MongoClient,config,client,urlcodeJSON){
 
 	this.singleSearch=function(){
     handle="@sprint";
-		searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);
+		searchTweets(MongoClient,config,url,handle,urlcodeJSON);
 	}
 
 	this.startSearch=function(){
     handle="@sprint";
-		searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);
-		setInterval(function(){searchTweets(MongoClient,config,url,handle,client,urlcodeJSON);},60000);
+		searchTweets(MongoClient,config,url,handle,urlcodeJSON);
+		setInterval(function(){searchTweets(MongoClient,config,url,handle,urlcodeJSON);},60000);
 	}
 }

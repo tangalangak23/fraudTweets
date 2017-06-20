@@ -1,5 +1,5 @@
 const ROOT_DIR = "../frontEnd/";
-module.exports = function (app, passport, express, MongoClient,client,urlcodeJSON,DEBUG,url,mongo,md5) {
+module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG,url,mongo,md5) {
     var path = require('path');
     app.use(express.static(ROOT_DIR));
 
