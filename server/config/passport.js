@@ -5,7 +5,7 @@ var LocalStrategy = require('passport-local').Strategy;
 
 
 // expose this function to our app using module.exports
-module.exports = function (MongoClient, passport,mongo,md5) {
+module.exports = function (MongoClient, passport,mongo,md5,url) {
 
     // =========================================================================
     // passport session setup ==================================================

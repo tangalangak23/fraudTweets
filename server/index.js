@@ -30,7 +30,7 @@ startReplyIndexing();
 
 //reset();
 
-require('./config/passport')(MongoClient, passport,mongo,md5);
+require('./config/passport')(MongoClient, passport,mongo,md5,config.url);
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
 	extended: true
