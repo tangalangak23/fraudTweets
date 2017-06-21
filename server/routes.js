@@ -11,6 +11,10 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "handles.html");
     });
 
+    app.use('/configTerms',isLoggedIn, function(req, res) {
+      send(res, "searchTerms.html");
+    });
+
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section
       failureRedirect: '/' // redirect back to the signup page if there is an error
@@ -43,6 +47,16 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    app.get('/getTerms',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        collection.find({name:"lastID"}).toArray(function(err,item){
+          db.close();
+          res.json(item);
+        });
+      });
+    });
+
     app.post('/updateHandles',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
@@ -52,6 +66,46 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         db.close();
       });
     });
+
+    app.post('/updateTerms',isLoggedIn, function(req, res) {
+      var current="";
+      var newTerms=req.body.newTerms;
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        collection.find({name:"lastID"}).toArray(function(err,item){
+          db.close();
+          var temp=newTerms.toString();
+          for(i=0;i<item.length;i++){
+            current+=item[i].handle+",";
+            if(!temp.includes(item[i].handle)){
+              MongoClient.connect(url,function(err,db){
+                var collection=db.collection("constants");
+                collection.remove({handle:item[i].handle},function(err,result){
+                  if(err){
+                    db.close();
+                    console.log(err);
+                  }
+                  db.close();
+                });
+              });
+            }
+          }
+          for(i=0;i<newTerms.length;i++){
+            if(!current.includes(newTerms[i])){
+              console.log("newTerm");
+              updateTerms(newTerms[i]);
+            }
+          }
+        });
+      });
+    });
+    function updateTerms(newTerm){
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        db.collection('constants').insert({"name":"lastID","value":"0","handle":newTerm});
+        db.close();
+      });
+    }
 
     app.post('/updateUser',isLoggedIn, function(req, res) {
       req.user.name=req.body.name;

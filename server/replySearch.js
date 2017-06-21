@@ -117,6 +117,14 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                   }
               }
           }
+          storedTweets.attempts+=1;
+            MongoClient.connect(config.url, function (err, db) {
+              collection = db.collection("tweets");
+              collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
+                console.log("No Relevant Results");
+              });
+            db.close();
+          });
       });
     }
 }

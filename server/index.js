@@ -11,7 +11,7 @@ var mongo=require('mongodb');
 var md5 = require('md5');
 var config;
 try {
-	config = JSON.parse(fs.readFileSync('.\\config\\authorization.json', 'utf8'));
+	config = JSON.parse(fs.readFileSync('./config/authorization.json', 'utf8'));
 } catch (e) {
 	console.log('No config file found. Using defaults.');
 }
