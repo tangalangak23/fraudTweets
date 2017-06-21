@@ -4,7 +4,7 @@ var config;
 
 function searchReply(MongoClient,config,urlcodeJSON,verified){
   var tweets;
-  
+
   MongoClient.connect(config.url,function(err,db){
     db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
@@ -24,6 +24,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
   });
 
   function fraudScore(name,valid,urlcodeJSON,results){
+    var validHandles=valid.split(",");
     var score=30;
     var scores=[];
     var query={
@@ -41,8 +42,8 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
             results.fraud= "%"+score;
         }
         else{
-            for(i=0;i<valid.length;i++){
-                scores.push(editDistance(name,valid[i]));
+            for(i=0;i<validHandles.length;i++){
+                scores.push(editDistance(name,validHandles[i]));
             }
             score=score+(70/Math.min.apply(Math,scores).toFixed(2));
             results.fraud= "%"+score;
@@ -116,28 +117,20 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                   }
               }
           }
-          storedTweets.attempts+=1;
-          MongoClient.connect(config.url, function (err, db) {
-              collection = db.collection("tweets");
-              collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
-                console.log("No Relevant Results");
-              });
-              db.close();
-          });
       });
     }
 }
 
 function editDistance(st1,st2){
-  var results=[[]];
+  var distance=[[]];
   for(i=0;i<=st2.length;i++){
-    results[i]=new Array(st1.length+1);
+    distance[i]=new Array(st1.length+1);
   }
   for(i=0;i<=st2.length;i++){
-    results[i][0]=i;
+    distance[i][0]=i;
   }
   for(i=0;i<=st1.length;i++){
-    results[0][i]=i;
+    distance[0][i]=i;
   }
 
 
@@ -148,13 +141,13 @@ function editDistance(st1,st2){
         cost=1;
       }
       temp=[];
-      temp.push(results[i-1][j]+1);
-      temp.push(results[i][j-1]+1);
-      temp.push(results[i-1][j-1]+cost);
-      results[i][j]=Math.min.apply(Math,temp);
+      temp.push(distance[i-1][j]+1);
+      temp.push(distance[i][j-1]+1);
+      temp.push(distance[i-1][j-1]+cost);
+      distance[i][j]=Math.min.apply(Math,temp);
     }
   }
-  return(results[st1.length-1][st2.length-1]);
+  return(distance[st1.length-1][st2.length-1]);
 }
 
 function checkHelp(text){
