@@ -29,6 +29,9 @@
 .invalid{
   background-color: #E57373 !important;
 }
+.verified{
+  background-color: #FFF176 !important;
+}
 .toMany{
   background-color: #64b5f6 !important;
 }

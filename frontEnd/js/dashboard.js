@@ -18,6 +18,9 @@ var table=$("#tweets").DataTable({
       if (value=="%0") {
         $(nRow).addClass('valid');
       }
+      else if (value=="%30") {
+        $(nRow).addClass('verified');
+      }
       else if (value!=null) {
         $(nRow).addClass('invalid');
       }
