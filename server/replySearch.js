@@ -17,7 +17,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                 access_token_key: config.keys[keyNum].ACCESS_KEY,
                 access_token_secret: config.keys[keyNum].ACCESS_SECRET
             });
-          query(item[i].screenName,item[i],client);
+          query(item[i].user.screenName,item[i],client);
         }
       }
     });
@@ -45,7 +45,8 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
             for(i=0;i<validHandles.length;i++){
                 scores.push(editDistance(name,validHandles[i]));
             }
-            score=score+(70/Math.min.apply(Math,scores).toFixed(2));
+            var temp=+((70/Math.min.apply(Math,scores)).toFixed(2));
+            score=score+temp;
             results.fraud= "%"+score;
         }
         MongoClient.connect(config.url, function (err, db) {
@@ -142,8 +143,8 @@ function editDistance(st1,st2){
   }
 
 
-  for(i=1;i<=st1.length+1;i++){
-    for(j=1;j<st2.length;j++){
+  for(i=1;i<=st2.length;i++){
+    for(j=1;j<st1.length+1;j++){
       cost=0;
       if(st1[i-1]!=st2[j-1]){
         cost=1;
@@ -155,7 +156,7 @@ function editDistance(st1,st2){
       distance[i][j]=Math.min.apply(Math,temp);
     }
   }
-  return(distance[st1.length-1][st2.length-1]);
+  return(distance[st2.length][st1.length]);
 }
 
 function checkHelp(text){
