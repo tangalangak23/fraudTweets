@@ -1,7 +1,7 @@
 var table=$("#tweets").DataTable({
     columns: [
         {data: "id"},
-        {data: "screenName"},
+        {data: "user.screenName"},
         {data:"handle"},
         {data: "score"},
         {data: "fraud"}
@@ -46,11 +46,21 @@ $("#tweets tbody").on("click", "tr", function (event) {
       $("#reset").show();
       $("#reply").hide();
     }
-    $("#name").text(data.name);
+    $("#background").attr("style",("background-image:url('"+data.user.coverIMG+"')"));
+    $("#profilePic").attr("src",data.user.profileIMG);
+    $("#name").text(data.user.name);
+    $("#screenName").text(data.user.screenName);
+    $("#location").text(data.user.location);
+    $("#lang").text(data.user.lang);
+    $("#zone").text(data.user.timeZone);
+    $("#follow").text(data.user.followerCount);
+    $("#friends").text(data.user.friendCount);
+    $("#statuses").text(data.user.statusCount);
     $("#score").text(data.score);
     $("#text").text(data.text);
-    $("#text").append("<br>-@"+data.screenName);
+    $("#text").append("<br>-@"+data.user.screenName);
     $("#link").attr("href",'https://twitter.com/'+name+'/status/'+id);
+    $("#profileLink").attr("href",'https://twitter.com/'+name);
     $("#detailedView").fadeIn();
   });
 });

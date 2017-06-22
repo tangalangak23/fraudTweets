@@ -6,13 +6,13 @@ var lastID;
 
 
 function searchTweets(MongoClient,config,urlcodeJSON){
-  
+
   MongoClient.connect(config.url,function(err,db){
     var constants=db.collection("constants");
     constants.find({"name":"lastID"}).toArray(function(err,item){
       for(i=0;i<item.length;i++){
         keyNum=i%config.keys.length;
-        lastID=item[i].value;       
+        lastID=item[i].value;
         handle=item[i].handle;
         client=new Twitter({
           consumer_key:config.keys[keyNum].CONSUMER_KEY,
@@ -40,7 +40,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         console.log(query);
         console.log(error);
         return -1;
-      } 
+      }
       MongoClient.connect(config.url,function(err,db){
         assert.equal(null,err);
         console.log("Running search...");
@@ -52,16 +52,40 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         }
         for(i=0;i<length;i++){
           if(!tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
-            name=tweets.statuses[i].user.name;
-            screenName=tweets.statuses[i].user.screen_name;
             uid=tweets.statuses[i].id_str;
+            name=tweets.statuses[i].user.name,
             text=tweets.statuses[i].text;
-            dateTime=tweets.statuses[i].created_at;
             score=sentiment(tweets.statuses[i].text).score;
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
             if(score<0){
-              db.collection('tweets').insert({"id":uid,"name":name,"screenName":screenName,"text":text,"score":score,"dateTime":dateTime,"handle":handle,"replyFound":false,"fraud":null,"attempts":0,"lastReply":null});
+              db.collection('tweets').insert({
+              "id":uid,
+              "user":{
+                "name":name,
+                "id":tweets.statuses[i].user.id_str,
+                "screenName":tweets.statuses[i].user.screen_name,
+                "profileIMG":tweets.statuses[i].user.profile_image_url,
+                "coverIMG":tweets.statuses[i].user.profile_banner_url,
+                "lang":tweets.statuses[i].user.lang,
+                "location":tweets.statuses[i].user.location,
+                "verified":tweets.statuses[i].user.verified,
+                "url":tweets.statuses[i].user.url,
+                "followerCount":tweets.statuses[i].user.followers_count,
+                "friendCount":tweets.statuses[i].user.friends_count,
+                "statusCount":tweets.statuses[i].user.statuses_count,
+                "timeZone":tweets.statuses[i].user.time_zone,
+                "created":tweets.statuses[i].user.created_at
+              },
+              "text":text,
+              "score":score,
+              "dateTime":tweets.statuses[i].created_at,
+              "handle":handle,
+              "replyFound":false,
+              "fraud":null,
+              "attempts":0,
+              "lastReply":null
+            });
            }
           }
         }

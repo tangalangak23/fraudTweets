@@ -16,7 +16,7 @@ client=new Twitter({
 });
 
 var query={
-  screen_name:"_carloslehder_",
+  screen_name:"thisdreamergirl",
   include_entities:false
 };
 query=urlcodeJSON.encode(query);
@@ -30,3 +30,19 @@ client.get(("users/show.json?"+query),function(error,tweets){
 });
 
 console.log(encodeURIComponent("#spring"))
+
+var query={
+  screen_name:"thisdreamergirl",
+	count:20,
+	exclude_replies:true,
+  include_rts:false
+};
+query=urlcodeJSON.encode(query);
+
+client.get(("users/show.json?"+query),function(error,tweets){
+  if(error){
+    console.log(error);
+    return -1;
+  }
+  console.log(tweets);
+});

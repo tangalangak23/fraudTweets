@@ -48,8 +48,7 @@
     <div class="container inner">
       <h2>
         <p style="text-align:left;">
-          <span id="name">@sprint</span>
-          <span style="float:right;" id="score">-N</span>
+          <span>Tweet</span><span style="float:right;">Score: <span id="score">-N</span></span>
         </p>
       </h2><h5>Original Tweet</h5>
       <div class="container tweet" id="text">
@@ -68,8 +67,32 @@
         </span>
       </p>
     </div>
-  </div>
 
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>Profile</span><span style="float:right;" ><img id="profilePic"></span>
+        </p>
+      </h2><h5>User statistics</h5>
+      <div class="container tweet">
+        <h5>Name: <span id="name"></span></h5>
+        <h5>Screen Name: @<span id="screenName"></span></h5>
+        <h5>Location: <span id="location"></span></h5>
+        <h5>Language: <span id="lang"></span></h5>
+        <h5>Time Zone: <span id="zone"></span></h5>
+        <h5>Counts:<br>
+          <span style="padding-left:3em;">Followers: <span id="follow"></span></span><br>
+          <span style="padding-left:3em;">Friends: <span id="friends"></span></span><br>
+          <span style="padding-left:3em;">Statuses: <span id="statuses"></span></span>
+        </h5>
+        <button class="btn" onclick="$('#background').toggle(500)">Show Cover Photo</button>
+        <div id="background"></img>
+      </div>
+      <div class="tweetLink">
+      <h5><a id="profileLink" href="" target="new">Profile Page</a></h5><br></div>
+    </div><br>
+  </div>
+</div>
   <div id='generalAccount' class="modal" style="display:none;">
     <div class="container inner">
       <h2>
