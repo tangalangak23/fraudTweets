@@ -1,6 +1,6 @@
 var table=$("#tweets").DataTable({
     columns: [
-        {data: "id"},
+        {data: "_id"},
         {data: "user.screenName"},
         {data:"handle"},
         {data: "score"},
@@ -41,6 +41,7 @@ $("#tweets tbody").on("click", "tr", function (event) {
       $("#replyId").text("Reply From: "+data.lastReply.name);
       $("#replyText").text(data.lastReply.text);
       $("#replyText").append("<br>-@"+data.lastReply.screenName);
+      $("#replyText").append("<br>"+data.lastReply.dateTime);
     }
     else{
       $("#reset").show();
@@ -57,9 +58,11 @@ $("#tweets tbody").on("click", "tr", function (event) {
     $("#friends").text(data.user.friendCount);
     $("#statuses").text(data.user.statusCount);
     $("#creation").text(data.user.created);
+    $("#averageScore").text(data.user.averageScore);
     $("#score").text(data.score);
     $("#text").text(data.text);
     $("#text").append("<br>-@"+data.user.screenName);
+    $("#text").append("<br>"+data.dateTime);
     $("#link").attr("href",'https://twitter.com/'+name+'/status/'+id);
     $("#profileLink").attr("href",'https://twitter.com/'+name);
     $("#detailedView").fadeIn();

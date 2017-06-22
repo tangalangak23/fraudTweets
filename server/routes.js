@@ -149,7 +149,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/getTweetInfo',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
-        tweets.find({"id":req.body.id}).toArray(function(err,item){
+        tweets.find({"_id":req.body.id}).toArray(function(err,item){
           db.close();
           res.json(item[0]);
         });
@@ -159,9 +159,9 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/resetAttempts',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
-        tweets.find({"id":req.body.id}).toArray(function(err,item){
+        tweets.find({"_id":req.body.id}).toArray(function(err,item){
           item[0].attempts=0;
-          tweets.update({"id": req.body.id}, item[0], function (err, item) {
+          tweets.update({"_id": req.body.id}, item[0], function (err, item) {
             console.log("Reset Attempts");
           });
           db.close();
@@ -172,7 +172,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/deleteRecord',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
-        tweets.remove({"id":req.body.id},function(err,result){
+        tweets.remove({"_id":req.body.id},function(err,result){
           db.close();
           return 0;
         });

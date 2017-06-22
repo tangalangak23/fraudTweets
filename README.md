@@ -65,7 +65,7 @@ db.createCollection("users")
 - Only required fields are uname and an md5 hashed password
 
 ```javascript
-{uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf"}
+{uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf",email:"example@whatever.com",name:"Caleb Riggs"}
 ```
 #### 3) Constants collection in MongoDB
 - required for tracking searched tweets and verified handles
@@ -74,3 +74,14 @@ db.createCollection("users")
 {name:"lastID","handle":"SEARCH TERM",value:"0"}
 {name:"verifiedHandles",value:["handle",""]}
 ```
+
+## Stats
+- #### 950 Lines of JavaScript
+- #### 326 Lines of HTML
+- #### 101 Lines of CSS
+- #### 1,377 Total Lines Written
+
+## Other Stats
+- #### ∞ Tacos Eaten
+- #### 2 Cats pet
+- #### 0 Coffees drank

@@ -26,6 +26,34 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     db.close();
   });
 
+  function getAverageScore(client,id,name,tweetInfo){
+    var query={
+      screen_name:name,
+    	count:20,
+    	exclude_replies:true,
+      include_rts:false
+    };
+    query=urlcodeJSON.encode(query);
+
+    client.get(("statuses/user_timeline.json?"+query),function(error,tweets){
+      if(error){
+        console.log(error);
+        return -1;
+      }
+    	var average=0;
+    	for(i=0;i<tweets.length;i++){
+    		average=average+(sentiment(tweets[i].text).score);
+    	}
+    	tweetInfo.user.averageScore=(average/tweets.length).toFixed(2);
+      MongoClient.connect(config.url,function(err,db){
+  			var tweets=db.collection("tweets");
+        tweets.update({"_id":id},tweetInfo,function(err,result){
+        });
+  			db.close();
+  		});
+    });
+  }
+
   function query(handle,lastID,client){
     var query={
       q:encodeURIComponent(handle),
@@ -54,17 +82,18 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(!tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
             uid=tweets.statuses[i].id_str;
             name=tweets.statuses[i].user.name,
+            screenName=tweets.statuses[i].user.screen_name;
             text=tweets.statuses[i].text;
             score=sentiment(tweets.statuses[i].text).score;
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
             if(score<0){
-              db.collection('tweets').insert({
-              "id":uid,
+              var tweet={
+              "_id":uid,
               "user":{
                 "name":name,
                 "id":tweets.statuses[i].user.id_str,
-                "screenName":tweets.statuses[i].user.screen_name,
+                "screenName":screenName,
                 "profileIMG":tweets.statuses[i].user.profile_image_url,
                 "coverIMG":tweets.statuses[i].user.profile_banner_url,
                 "lang":tweets.statuses[i].user.lang,
@@ -75,7 +104,8 @@ function searchTweets(MongoClient,config,urlcodeJSON){
                 "friendCount":tweets.statuses[i].user.friends_count,
                 "statusCount":tweets.statuses[i].user.statuses_count,
                 "timeZone":tweets.statuses[i].user.time_zone,
-                "created":tweets.statuses[i].user.created_at
+                "created":tweets.statuses[i].user.created_at,
+                "averageScore":0
               },
               "text":text,
               "score":score,
@@ -85,7 +115,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
               "fraud":null,
               "attempts":0,
               "lastReply":null
-            });
+            };
+              db.collection('tweets').insert(tweet);
+            getAverageScore(client,uid,screenName,tweet);
            }
           }
         }

@@ -51,7 +51,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
         }
         MongoClient.connect(config.url, function (err, db) {
             collection = db.collection("tweets");
-            collection.update({id: results.id}, results, function (err, item) {
+            collection.update({_id: results.id}, results, function (err, item) {
                 console.log("Successfully Updated");
             });
             db.close();
@@ -75,7 +75,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
               storedTweets.attempts+=1;
               MongoClient.connect(config.url, function (err, db) {
                   collection = db.collection("tweets");
-                  collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
+                  collection.update({_id: storedTweets.id}, storedTweets, function (err, item) {
                     console.log("No Reply Mentions found");
                   });
                   db.close();
@@ -98,13 +98,12 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                         results.replyFound = true;
                         results.attempts+=1;
                         results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
-                        delete results._id;
                         if (verified.includes(screenName)) {
                             console.log("Corrosponding tweet found and verified\n");
                             results.fraud = "%0";
                             MongoClient.connect(config.url, function (err, db) {
                                 collection = db.collection("tweets");
-                                collection.update({id: results.id}, results, function (err, item) {
+                                collection.update({_id: results.id}, results, function (err, item) {
                                 console.log("Successfully Updated");
                             });
                             db.close();
@@ -121,7 +120,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
           storedTweets.attempts+=1;
             MongoClient.connect(config.url, function (err, db) {
               collection = db.collection("tweets");
-              collection.update({id: storedTweets.id}, storedTweets, function (err, item) {
+              collection.update({_id: storedTweets.id}, storedTweets, function (err, item) {
                 console.log("No Relevant Results");
               });
             db.close();

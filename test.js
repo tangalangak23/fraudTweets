@@ -1,6 +1,7 @@
 var urlcodeJSON=require("urlcode-json");
 var fs = require('fs');
 var Twitter=require("twitter");
+var sentiment=require("sentiment");
 var config;
 try {
 	config = JSON.parse(fs.readFileSync('./server/config/authorization.json', 'utf8'));
@@ -14,35 +15,25 @@ client=new Twitter({
   access_token_key: config.keys[3].ACCESS_KEY,
   access_token_secret: config.keys[3].ACCESS_SECRET
 });
-
+console.log("Hello");
 var query={
-  screen_name:"thisdreamergirl",
-  include_entities:false
-};
-query=urlcodeJSON.encode(query);
-
-client.get(("users/show.json?"+query),function(error,tweets){
-  if(error){
-    console.log(error);
-    return -1;
-  }
-  console.log(tweets);
-});
-
-console.log(encodeURIComponent("#spring"))
-
-var query={
-  screen_name:"thisdreamergirl",
+  screen_name:"NanoAged",
 	count:20,
 	exclude_replies:true,
   include_rts:false
 };
 query=urlcodeJSON.encode(query);
 
-client.get(("users/show.json?"+query),function(error,tweets){
+client.get(("statuses/user_timeline.json?"+query),function(error,tweets){
   if(error){
     console.log(error);
     return -1;
   }
-  console.log(tweets);
+	var average=0;
+	for(i=0;i<tweets.length;i++){
+		average=average+(sentiment(tweets[i].text).score);
+	}
+	average=(average/tweets.length).toFixed(2);
+	console.log(average);
 });
+console.log("World");
