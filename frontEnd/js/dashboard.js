@@ -56,6 +56,7 @@ $("#tweets tbody").on("click", "tr", function (event) {
     $("#follow").text(data.user.followerCount);
     $("#friends").text(data.user.friendCount);
     $("#statuses").text(data.user.statusCount);
+    $("#creation").text(data.user.created);
     $("#score").text(data.score);
     $("#text").text(data.text);
     $("#text").append("<br>-@"+data.user.screenName);
