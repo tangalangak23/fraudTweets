@@ -73,6 +73,7 @@ db.createCollection("users")
 ```javascript
 {name:"lastID","handle":"SEARCH TERM",value:"0"}
 {name:"verifiedHandles",value:["handle",""]}
+{name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0}
 ```
 
 ## Stats

@@ -26,6 +26,54 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     db.close();
   });
 
+  function updateStatistics(stats){
+    console.log("IBHGAS<DGKIUASGDKIUABSD"+"\t"+stats.length)
+    if(stats.length==0){
+      return -1;
+    }
+    MongoClient.connect(config.url,function(err,db){
+      var constants=db.collection("constants");
+      constants.find({"name":"statistics"}).toArray(function(err,item){
+        var totalSum=0;
+        var negativeSum=0;
+        var negativeCount=0;
+        for(i=0;i<stats.length;i++){
+          totalSum+=stats[i];
+          if (stats[i]<0){
+            negativeSum+=stats[i];
+            negativeCount+=1;
+          }
+        }
+        results=item[0];
+        if(results.count==0){
+          results.count=stats.length;
+          results.negativeCount=negativeCount;
+          results.averageScore+=results.averageScore+(totalSum/stats.length);
+          if(negativeCount!=0){
+            results.averageNegativeScore+=results.averageNegativeScore+(negativeSum/negativeCount);
+          }
+          constants.update({"name":"statistics"},results,function (err, item) {
+              console.log("Successfully Updated statistics");
+          });
+        }
+        else{
+          results.count+=stats.length;
+          results.negativeCount+=negativeCount;
+          results.averageScore+=((results.averageScore+(totalSum/stats.length))/2);
+          if(negativeCount!=0){
+            results.averageNegativeScore+=((results.averageNegativeScore+(negativeSum/negativeCount))/2);
+          }
+          constants.update({"name":"statistics"},results,function (err, item) {
+              console.log("Successfully Updated statistics");
+          });
+        }
+        db.close();
+      });
+    });
+
+
+  }
+
   function getAverageScore(client,id,name,tweetInfo){
     var query={
       screen_name:name,
@@ -55,6 +103,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
   }
 
   function query(handle,lastID,client){
+    var scores=[];
     var query={
       q:encodeURIComponent(handle),
       result_type:"recent",
@@ -85,6 +134,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
             screenName=tweets.statuses[i].user.screen_name;
             text=tweets.statuses[i].text;
             score=sentiment(tweets.statuses[i].text).score;
+            scores.push(score);
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
             if(score<0){
@@ -122,6 +172,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
            }
           }
         }
+        updateStatistics(scores);
         var constants=db.collection("constants");
         constants.update({"handle":handle},{name:"lastID","handle":handle,value:tweets.statuses[0].id_str});
         console.log("Search complete\n");
