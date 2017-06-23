@@ -27,7 +27,6 @@ function searchTweets(MongoClient,config,urlcodeJSON){
   });
 
   function updateStatistics(stats){
-    console.log("IBHGAS<DGKIUASGDKIUABSD"+"\t"+stats.length)
     if(stats.length==0){
       return -1;
     }
@@ -48,9 +47,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         if(results.count==0){
           results.count=stats.length;
           results.negativeCount=negativeCount;
-          results.averageScore+=results.averageScore+(totalSum/stats.length);
+          results.averageScore=results.averageScore+(totalSum/stats.length);
           if(negativeCount!=0){
-            results.averageNegativeScore+=results.averageNegativeScore+(negativeSum/negativeCount);
+            results.averageNegativeScore=results.averageNegativeScore+(negativeSum/negativeCount);
           }
           constants.update({"name":"statistics"},results,function (err, item) {
               console.log("Successfully Updated statistics");
@@ -59,9 +58,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         else{
           results.count+=stats.length;
           results.negativeCount+=negativeCount;
-          results.averageScore+=((results.averageScore+(totalSum/stats.length))/2);
+          results.averageScore=((results.averageScore+(totalSum/stats.length))/2);
           if(negativeCount!=0){
-            results.averageNegativeScore+=((results.averageNegativeScore+(negativeSum/negativeCount))/2);
+            results.averageNegativeScore=((results.averageNegativeScore+(negativeSum/negativeCount))/2);
           }
           constants.update({"name":"statistics"},results,function (err, item) {
               console.log("Successfully Updated statistics");
