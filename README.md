@@ -76,10 +76,10 @@ db.createCollection("users")
 ```
 
 ## Stats
-- #### 950 Lines of JavaScript
-- #### 326 Lines of HTML
+- #### 985 Lines of JavaScript
+- #### 328 Lines of HTML
 - #### 101 Lines of CSS
-- #### 1,377 Total Lines Written
+- #### 1,414 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
