@@ -108,6 +108,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
                 "averageScore":0
               },
               "text":text,
+              "responseTime":"0",
               "score":score,
               "dateTime":tweets.statuses[i].created_at,
               "handle":handle,

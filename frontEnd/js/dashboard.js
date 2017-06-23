@@ -3,6 +3,7 @@ var table=$("#tweets").DataTable({
         {data: "_id"},
         {data: "user.screenName"},
         {data:"handle"},
+        {data:"responseTime"},
         {data: "score"},
         {data: "fraud"}
     ],

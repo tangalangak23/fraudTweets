@@ -95,6 +95,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                   if (storedTweets._id == replyId) {
                       if (checkHelp(text)) {
                         results = storedTweets;
+                        results.responseTime=Math.round(((new Date(dateTime)- new Date(storedTweets.dateTime)%86400000)%3600000)/60000);
                         results.replyFound = true;
                         results.attempts+=1;
                         results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
