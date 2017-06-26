@@ -93,7 +93,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     //Setup a query for user timeline
     var query={
       screen_name:name,
-    	count:20,
+    	count:30,
     	exclude_replies:true,
       include_rts:false
     };
