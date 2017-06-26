@@ -219,7 +219,11 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/deleteRecord',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
+        var stats=db.collection("constants")
         tweets.remove({"_id":req.body.id},function(err,result){
+          stats.findOneAndUpdate({name:"statistics"},{$inc:{"negativeCount":-1}},function(err,data){
+            if(err) console.log(err);
+          })
           db.close();
           return 0;
         });
