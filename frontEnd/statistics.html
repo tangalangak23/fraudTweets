@@ -32,14 +32,47 @@
     <h3>Below are some general statistics about observed tweets</h3>
   </div>
   <div class="container">
-    <h1 style="text-align:left;">
-      Total Tweets:<span id="totalCount"></span>
-      <span style="float:right;"><span id="totalAverage"></span>:Average Total Score</span>
-    </h1><br><br>
-    <h1 style="text-align:left;">
-      Negative Tweets:<span id="negativeCount"></span>
-      <span style="float:right;"><span id="negativeAverage"></span>:Average Negative Score</span>
-    </h1>
+    <div class="row">
+      <div class="col-md-6">
+        <h1>Total Tweets<br>
+          <span id="totalCount"></span>
+        </h1>
+      </div>
+      <div class="col-md-6">
+        <h1>Negative Tweets<br>
+          <span id="negativeCount"></span>
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h1>Average Total Score<br>
+          <span id="totalAverage"></span>
+        </h1>
+      </div>
+      <div class="col-md-6">
+        <h1>Average Negative Score<br>
+          <span id="negativeAverage"></span>
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <h1>Responses Found<br>
+          <span id="responsesFound"></span>
+        </h1>
+      </div>
+      <div class="col-md-4">
+        <h1>Percent Valid<br>
+          <span id="validResponses"></span>
+        </h1>
+      </div>
+      <div class="col-md-4">
+        <h1>Percent Fraud<br>
+          <span id="fraudResponses"></span>
+        </h1>
+      </div>
+    </div>
   <div id='generalAccount' class="modal" style="display:none;">
     <div class="container inner">
       <h2>

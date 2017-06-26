@@ -27,6 +27,11 @@ $.get("/getStats",function(data){
   $("#negativeAverage").text((data.averageNegativeScore).toFixed(2)).css('color', negativeColor);
   $("#totalCount").text(data.count);
   $("#negativeCount").text(data.negativeCount);
+  var total=data.validRepliesFound+data.fraudulentRepliesFound;
+  var percent=+(data.validRepliesFound/total*100).toFixed(2);
+  $("#responsesFound").text(total)
+  $("#validResponses").text("%"+percent);
+  $("#fraudResponses").text("%"+(100-percent));
 });
 window.onclick = function (event) {
     if (event.target == $("#generalAccount")[0] ){

@@ -23,6 +23,28 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
     });
   });
 
+  function updateStatistics(stats){
+    MongoClient.connect(config.url,function(err,db){
+      var constants=db.collection("constants");
+      constants.find({"name":"statistics"}).toArray(function(err,item){
+        results=item[0];
+        if(stats){
+          results.validRepliesFound+=1;
+          constants.update({"name":"statistics"},results,function (err, item) {
+            if(err) console.log(err);
+          });
+        }
+        else{
+          results.fraudulentRepliesFound+=1
+          constants.update({"name":"statistics"},results,function (err, item) {
+            if(err) console.log(err);
+          });
+        }
+        db.close();
+      });
+    });
+  }
+
   function fraudScore(name,valid,urlcodeJSON,results){
     var validHandles=valid.split(",");
     var score=30;
@@ -105,12 +127,14 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                             MongoClient.connect(config.url, function (err, db) {
                                 collection = db.collection("tweets");
                                 collection.update({_id: results._id}, results, function (err, item) {
+                                updateStatistics(true);
                                 console.log("Successfully Updated");
                             });
                             db.close();
                         });
                         } else {
                             console.log("Corrosponding tweet found and not verified\n");
+                            updateStatistics(false);
                             results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
                         }
                         break;
