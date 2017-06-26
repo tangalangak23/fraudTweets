@@ -29,9 +29,9 @@ $.get("/getStats",function(data){
   $("#negativeCount").text(data.negativeCount);
   var total=data.validRepliesFound+data.fraudulentRepliesFound;
   var percent=+(data.validRepliesFound/total*100).toFixed(2);
-  $("#responsesFound").text(total)
+  $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
   $("#validResponses").text("%"+percent);
-  $("#fraudResponses").text("%"+(100-percent));
+  $("#fraudResponses").text("%"+(100-percent).toFixed(2));
 });
 window.onclick = function (event) {
     if (event.target == $("#generalAccount")[0] ){
