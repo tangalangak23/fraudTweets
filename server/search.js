@@ -1,41 +1,55 @@
+/* The purpouse of this file is to search twitter for tweets at search terms,
+check the sentiment, store the tweet info, and update the statistics.
+Created By: Caleb Riggs
+*/
+
 var sentiment=require("sentiment");
 var assert=require('assert');
 var Twitter=require("twitter");
 var config;
 var lastID;
 
-
+//This function handles all the necessary functions for searching and storing
 function searchTweets(MongoClient,config,urlcodeJSON){
-
+  //Connect to mongo db and pull relevant information to start the search
   MongoClient.connect(config.url,function(err,db){
     var constants=db.collection("constants");
     constants.find({"name":"lastID"}).toArray(function(err,item){
+      //For each of the items names lastID (Which is the name attribute for search terms) run the search
       for(i=0;i<item.length;i++){
+        //Select the appropriate authorization key to use from the config file
         keyNum=i%config.keys.length;
+        //Get relevant info from db record
         lastID=item[i].value;
         handle=item[i].handle;
+        //Create a twitter client with the key selected above
         client=new Twitter({
           consumer_key:config.keys[keyNum].CONSUMER_KEY,
           consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
           access_token_key: config.keys[keyNum].ACCESS_KEY,
           access_token_secret: config.keys[keyNum].ACCESS_SECRET
         });
+        //Run the search given the information from above
         query(handle,lastID,client)
       }
     });
     db.close();
   });
 
+  //Update the general statistics
   function updateStatistics(stats){
     if(stats.length==0){
       return -1;
     }
+    //Open db connection,
     MongoClient.connect(config.url,function(err,db){
       var constants=db.collection("constants");
+      //Find the current statistics in the database
       constants.find({"name":"statistics"}).toArray(function(err,item){
         var totalSum=0;
         var negativeSum=0;
         var negativeCount=0;
+        //Calculate the average of the current set of data and the count
         for(i=0;i<stats.length;i++){
           totalSum+=stats[i];
           if (stats[i]<0){
@@ -44,6 +58,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           }
         }
         results=item[0];
+        //For first run of statistics add inital records else update
         if(results.count==0){
           results.count=stats.length;
           results.negativeCount=negativeCount;
@@ -73,7 +88,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
 
   }
 
+  //Get a users average sentiment score
   function getAverageScore(client,id,name,tweetInfo){
+    //Setup a query for user timeline
     var query={
       screen_name:name,
     	count:20,
@@ -81,17 +98,19 @@ function searchTweets(MongoClient,config,urlcodeJSON){
       include_rts:false
     };
     query=urlcodeJSON.encode(query);
-
+    //Get the users last 20 tweets filtering replies and re tweets
     client.get(("statuses/user_timeline.json?"+query),function(error,tweets){
       if(error){
         console.log(error);
         return -1;
       }
+      //Calculate the users average sentiment
     	var average=0;
     	for(i=0;i<tweets.length;i++){
     		average=average+(sentiment(tweets[i].text).score);
     	}
     	tweetInfo.user.averageScore=(average/tweets.length).toFixed(2);
+      //Add the users averageScore to the db
       MongoClient.connect(config.url,function(err,db){
   			var tweets=db.collection("tweets");
         tweets.update({"_id":id},tweetInfo,function(err,result){
@@ -103,6 +122,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
 
   function query(handle,lastID,client){
     var scores=[];
+    //Setup and encode query to be used with Twitter
     var query={
       q:encodeURIComponent(handle),
       result_type:"recent",
@@ -111,31 +131,42 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     };
     query=urlcodeJSON.encode(query);
 
+    //search twitter for the the query constructed above
     client.get(("search/tweets.json?"+query),function(error,tweets){
+      //If twitter returns an error log the query and error then return -1
       if(error){
         console.log(query);
         console.log(error);
         return -1;
       }
+      //Initialize mongo connection that will be used for storing tweets
       MongoClient.connect(config.url,function(err,db){
+        //If there's an error assert
         assert.equal(null,err);
         console.log("Running search...");
         var length=tweets.statuses.length;
+        //If no tweets were found close the db connection and end
         if(length==0){
            db.close();
            console.log("Search complete\n");
            return 0;
         }
+        //For each of the tweets found
         for(i=0;i<length;i++){
+          //If the tweet is not a reply and not a retweet
           if(!tweets.statuses[i].in_reply_to_status_id_str && tweets.statuses[i].text[0]!="R" && tweets.statuses[i].text[1]!="T"){
+            //Gather tweet info
             uid=tweets.statuses[i].id_str;
             name=tweets.statuses[i].user.name,
             screenName=tweets.statuses[i].user.screen_name;
             text=tweets.statuses[i].text;
-            score=sentiment(tweets.statuses[i].text).score;
+            //Find the sentiment score using the sentiment package
+            score=sentiment(text).score;
+            //Add the score to the gobal score list
             scores.push(score);
             console.log(name+"\n"+uid+"\n--------------");
             console.log(text+"\n"+score+"\n\n\n");
+            //If the score is less than zero create object and store in db
             if(score<0){
               var tweet={
               "_id":uid,
@@ -167,10 +198,12 @@ function searchTweets(MongoClient,config,urlcodeJSON){
               "lastReply":null
             };
               db.collection('tweets').insert(tweet);
-            getAverageScore(client,uid,screenName,tweet);
+              //Get Users average score for user statistics
+              getAverageScore(client,uid,screenName,tweet);
            }
           }
         }
+        //Update general statistics and the lastID found in the db
         updateStatistics(scores);
         var constants=db.collection("constants");
         constants.update({"handle":handle},{name:"lastID","handle":handle,value:tweets.statuses[0].id_str});
@@ -181,20 +214,16 @@ function searchTweets(MongoClient,config,urlcodeJSON){
   }
 }
 
+
+//Basic functions that are accessible by index.js using the require function
 module.exports=function(MongoClient,config,urlcodeJSON){
 
-	this.reset = function(){
-		MongoClient.connect(config.url,function(err,db){
-			var tweets=db.collection("tweets");
-			tweets.remove({});
-			db.close();
-		});
-	}
-
+  //Run a single search of search terms
 	this.singleSearch=function(){
 		searchTweets(MongoClient,config,urlcodeJSON);
 	}
 
+  //Run a single search of the search terms and set up a recuring search every minute (60000 miliseconds)
 	this.startSearch=function(){
 		searchTweets(MongoClient,config,urlcodeJSON);
 		setInterval(function(){searchTweets(MongoClient,config,urlcodeJSON);},60000);

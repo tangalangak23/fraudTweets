@@ -1,3 +1,4 @@
+//Initialize DataTable
 var table=$("#tweets").DataTable({
     columns: [
         {data: "_id"},
@@ -15,6 +16,7 @@ var table=$("#tweets").DataTable({
         type: "GET",
     },
     "fnCreatedRow": function (nRow, aData, iDisplayIndex) {
+      //When a row is created check the fraud score and color appropriately
       var value = aData.fraud;
       if (value=="%0") {
         $(nRow).addClass('valid');
@@ -31,10 +33,11 @@ var table=$("#tweets").DataTable({
     }
 })
 var id;
+
+//When a table row is clicked get the relevant info and display it in the modals
 $("#tweets tbody").on("click", "tr", function (event) {
   var name=$(this).find("td:nth-child(2)").text();
   id=$(this).find("td:nth-child(1)").text();
-  //window.open('https://twitter.com/'+name+'/status/'+id, '_blank');
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
       $("#reset").hide();
@@ -83,16 +86,19 @@ window.onclick = function (event) {
     }
 }
 
+//Delete the record from the db
 $("#delete").click(function(){
   $.post("/deleteRecord",{"id":id});
   location.reload();
 });
 
+//Reset the attempted searches
 $("#reset").click(function(){
   $.post("/resetAttempts",{"id":id});
   location.reload();
 });
 
+//Get user info to show in UAC panel
 $("#generalUAC").click(function(){
   $.get("/getUser",function(data){
     $("#usersName").val(data.name);
@@ -102,10 +108,12 @@ $("#generalUAC").click(function(){
   });
 });
 
+//Show password change panel
 $("#changePassword").click(function(){
   $("#passwordChange").fadeIn();
 });
 
+//Validate input from password form and post to /updatePassword
 $('#passwordForm').click(function(ev) {
   current=$("#current").val();
   newPass=$("#newPass").val();
@@ -119,8 +127,6 @@ $('#passwordForm').click(function(ev) {
   }
   else{
     $("#message").text("Updating Password");
-    $.post("/updatePassword",{currentPassword:current,newPassword:newPass},function(data){
-
-    });
+    $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
   }
 });

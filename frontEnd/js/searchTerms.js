@@ -1,4 +1,5 @@
 var handles=[];
+//Get the search terms and generate the input fields
 $.get("/getTerms",function(data){
   for(i=0;i<data.length;i++){
     handles.push(data[i].handle);
@@ -9,11 +10,13 @@ $.get("/getTerms",function(data){
   }
 });
 
+//Handle creating a new input field for additional terms
 $("#add").click(function(){
   temp="<tr><td><input type='text' data-new='yes' class='form-control'></td><td><input class='form-control' type='checkbox' value='new'></td></tr>";
   $("#handlesContainter").append(temp);
 });
 
+//Handle the update by creating a new list of search terms and posting to /updateTerms
 $("#update").click(function(){
   $("input").each(function(data,obj){
     type=$(obj).attr("type");
@@ -43,6 +46,7 @@ $("#update").click(function(){
   location.reload();
 });
 
+//Hide UAC and password modal when clicked outside of
 window.onclick = function (event) {
     if (event.target == $("#generalAccount")[0] ){
         $("#generalAccount").fadeOut();
@@ -52,6 +56,7 @@ window.onclick = function (event) {
     }
 }
 
+//Get user info to show in UAC panel
 $("#generalUAC").click(function(){
   $.get("/getUser",function(data){
     $("#usersName").val(data.name);
@@ -61,10 +66,12 @@ $("#generalUAC").click(function(){
   });
 });
 
+//Show password change panel
 $("#changePassword").click(function(){
   $("#passwordChange").fadeIn();
 });
 
+//Validate input from password form and post to /updatePassword
 $('#passwordForm').click(function(ev) {
   current=$("#current").val();
   newPass=$("#newPass").val();
@@ -78,8 +85,6 @@ $('#passwordForm').click(function(ev) {
   }
   else{
     $("#message").text("Updating Password");
-    $.post("/updatePassword",{currentPassword:current,newPassword:newPass},function(data){
-
-    });
+    $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
   }
 });

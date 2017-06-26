@@ -1,8 +1,17 @@
+/* This file manages the front end and rest requests along with any post request
+to update the database.
+Created By: Caleb Riggs
+*/
+
+//establish the frontEnd director structure
 const ROOT_DIR = "../frontEnd/";
 module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG,url,mongo,md5) {
+    //pull additional dependency
     var path = require('path');
+    //set root directory for front end elements
     app.use(express.static(ROOT_DIR));
 
+    //serve front end pages
     app.use('/home',isLoggedIn, function(req, res) {
       send(res, "dashboard.html");
     });
@@ -19,11 +28,13 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "statistics.html");
     });
 
+    //handle login event
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section
       failureRedirect: '/' // redirect back to the signup page if there is an error
     }));
 
+    //handle rest requests to get data from mongoDB
     app.get('/getTweets',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
@@ -71,6 +82,10 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    //Handle post events
+
+    //Update the stored handles in the database from a post in the front end with the format
+    //{newhandles:["HANDLE","HANDLE"]}
     app.post('/updateHandles',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
@@ -81,14 +96,18 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    //Update the search terms
     app.post('/updateTerms',isLoggedIn, function(req, res) {
       var current="";
+      //get the new terms from the post
       var newTerms=req.body.newTerms;
+      //get the current terms from mongo
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
         collection.find({name:"lastID"}).toArray(function(err,item){
           db.close();
           var temp=newTerms.toString();
+          //if there are terms in existing not in new remove the terms
           for(i=0;i<item.length;i++){
             current+=item[i].handle+",";
             if(!temp.includes(item[i].handle)){
@@ -104,6 +123,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
               });
             }
           }
+          //if there are terms in new not in existing add to mongo
           for(i=0;i<newTerms.length;i++){
             if(!current.includes(newTerms[i])){
               console.log("newTerm");
@@ -113,6 +133,8 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         });
       });
     });
+
+    //function for adding new terms to mongo used by /updateTerms
     function updateTerms(newTerm){
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
@@ -121,15 +143,19 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     }
 
+    //update user info from general UAC form.
     app.post('/updateUser',isLoggedIn, function(req, res) {
+      //get post info
       req.user.name=req.body.name;
       req.user.uname=req.body.uname;
       req.user.email=req.body.email;
+      //find user by mongo ID in passport data
       var id=new mongo.ObjectID(req.user._id);
       temp=req.user;
       delete temp._id;
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("users");
+        //update user with new information
         collection.update({_id:id },temp, function (err, item) {
           console.log("Updated user info");
         });
@@ -138,10 +164,14 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       res.redirect("/home");
     });
 
+    //update user password from update password form
     app.post('/updatePassword',isLoggedIn, function(req, res) {
+      //get the users current password from post
       temp=req.body.currentPassword;
       temp=md5(temp);
+      //verify user by checking current password
       if(req.user.password==temp){
+        //get user id to update password in database
         var id=new mongo.ObjectID(req.user._id);
         temp=req.user;
         delete temp._id;
@@ -160,6 +190,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       }
     });
 
+    //get the specific tweet info given id
     app.post('/getTweetInfo',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
@@ -170,6 +201,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    //reset the attempts count on a tweeet
     app.post('/resetAttempts',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
@@ -183,6 +215,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    //delete the tweet from the database
     app.post('/deleteRecord',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
@@ -193,11 +226,13 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
+    //logout
     app.get('/logout', function(req, res) {
       req.logout();
       res.redirect('/');
     });
 
+    //redirect requests to the default login page
     app.use('/', function(req, res) {
       send(res, "login.html");
     });
@@ -214,6 +249,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       console.log('Not logged in; redirecting...');
     }
 
+    //function to simplify sending front end elements
     function send(request, file) {
       request.sendFile(path.join(__dirname, ROOT_DIR, file));
     }
