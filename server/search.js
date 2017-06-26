@@ -226,6 +226,6 @@ module.exports=function(MongoClient,config,urlcodeJSON){
   //Run a single search of the search terms and set up a recuring search every minute (60000 miliseconds)
 	this.startSearch=function(){
 		searchTweets(MongoClient,config,urlcodeJSON);
-		setInterval(function(){searchTweets(MongoClient,config,urlcodeJSON);},60000);
+		setInterval(function(){searchTweets(MongoClient,config,urlcodeJSON);},120000);
 	}
 }
