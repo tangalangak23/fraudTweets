@@ -73,9 +73,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         else{
           results.count+=stats.length;
           results.negativeCount+=negativeCount;
-          results.averageScore=((results.averageScore+(totalSum/stats.length))/2);
+          results.averageScore=(((results.averageScore*results.count)+((totalSum/stats.length)*stats.length))/(results.count+stats.length));
           if(negativeCount!=0){
-            results.averageNegativeScore=((results.averageNegativeScore+(negativeSum/negativeCount))/2);
+            results.averageNegativeScore=(((results.averageNegativeScore*results.negativeCount)+((negativeSum/negativeCount)*negativeCount))/(results.negativeCount+negativeCount));
           }
           constants.update({"name":"statistics"},results,function (err, item) {
               console.log("Successfully Updated statistics");

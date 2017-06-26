@@ -1,5 +1,6 @@
 //Get the statistics
 $.get("/getStats",function(data){
+  console.log(data);
   //Check the score and select the appropriate color
   if(data.averageScore>=2){
     totalColor="#43A047";
