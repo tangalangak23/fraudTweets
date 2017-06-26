@@ -15,6 +15,10 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "searchTerms.html");
     });
 
+    app.use('/generalStatistcs',isLoggedIn, function(req, res) {
+      send(res, "statistics.html");
+    });
+
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section
       failureRedirect: '/' // redirect back to the signup page if there is an error
@@ -53,6 +57,16 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         collection.find({name:"lastID"}).toArray(function(err,item){
           db.close();
           res.json(item);
+        });
+      });
+    });
+
+    app.get('/getStats',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("constants");
+        collection.find({name:"statistics"}).toArray(function(err,item){
+          db.close();
+          res.json(item[0]);
         });
       });
     });
