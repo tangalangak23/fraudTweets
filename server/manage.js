@@ -8,8 +8,11 @@ function randomAttempt(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
     if(err) console.log(err);
     var tweets=db.collection("tweets");
-    tweets.find({replyFound:false,attempts:{$gt:30}}).toArray(function(err,data){
+    tweets.find({replyFound:false,attempts:{$gt:29}}).toArray(function(err,data){
       //Select a random tweet from the results set the attempts to 10 then update
+      if(data.length==0){
+        return 0;
+      }
       var itemNum=Math.floor(Math.random()*data.length);
       item=data[itemNum];
       item.attempts=10;
@@ -39,7 +42,7 @@ function clean(MongoClient,config){
         rerturn -1;
       }
       console.log("Database cleaned up");
-    })
+    });
   });
 }
 
@@ -79,7 +82,7 @@ module.exports=function(MongoClient,config){
 
   //Reset a single random records attempts to allow it to be searched again
 	this.singleAttempt=function(){
-		randomReset(MongoClient,config);
+		randomAttempt(MongoClient,config);
 	}
 
   //Remove all records that no response have been found and the attempts are greater than or equal to 30
