@@ -40,6 +40,7 @@ function clean(MongoClient,config){
       }
       console.log("Database cleaned up");
     })
+  });
 }
 
 //Reset the database (excludes users and any terms)
