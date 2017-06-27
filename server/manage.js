@@ -3,7 +3,7 @@ Created By: Caleb Riggs
 */
 
 //Add unique dependency
-var schedule=requre('node-schedule');
+var schedule=require('node-schedule');
 //Reset the attempts of a random tweet in the db
 function randomAttempt(MongoClient,config){
   //Find all tweets that meet the reset criteria
