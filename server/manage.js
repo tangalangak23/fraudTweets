@@ -17,7 +17,7 @@ function randomAttempt(MongoClient,config){
       }
       var itemNum=Math.floor(Math.random()*data.length);
       item=data[itemNum];
-      item.attempts=15;
+      item.attempts=20;
       tweets.update({_id:item._id},item,function(err,res){
         if(err){
           console.log(err);
