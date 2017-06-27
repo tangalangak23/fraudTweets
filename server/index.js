@@ -28,14 +28,16 @@ try {
 const DEBUG=config.debug;
 const url=config.url;
 
-//require search and replySearch files for twitter integration and pass dependencies
+//require search and replySearch files for twitter integration and pass dependencies along with db managment
 require("./search.js")(MongoClient,config,urlcodeJSON);
 require("./replySearch.js")(MongoClient,config,urlcodeJSON);
+require("./manage.js")(MongoClient,config);
 
 //use searches startSearch function and replySearch startReplyIndexing functions
 //To start searching for tweets and replies
 startSearch();
 startReplyIndexing();
+startManage();
 
 //require passport for authentication, pass it dependencies
 require('./config/passport')(MongoClient, passport,mongo,md5,config.url);
