@@ -2,7 +2,9 @@
 Created By: Caleb Riggs
 */
 
-//reset the attempts of a random tweet in the db
+//Add unique dependency
+var schedule=requre('node-schedule');
+//Reset the attempts of a random tweet in the db
 function randomAttempt(MongoClient,config){
   //Find all tweets that meet the reset criteria
   MongoClient.connect(config.url,function(err,db){
@@ -15,7 +17,7 @@ function randomAttempt(MongoClient,config){
       }
       var itemNum=Math.floor(Math.random()*data.length);
       item=data[itemNum];
-      item.attempts=10;
+      item.attempts=15;
       tweets.update({_id:item._id},item,function(err,res){
         if(err){
           console.log(err);
@@ -97,6 +99,7 @@ module.exports=function(MongoClient,config){
 
   //Start recuring random reset function and nightly clean
 	this.startManage=function(){
+    schedule.scheduleJob('0 0 * * *',function(){clean(MongoClient,config);});
 		setInterval(function(){randomAttempt(MongoClient,config);},600000);
 	}
 }
