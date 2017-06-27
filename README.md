@@ -1,5 +1,3 @@
-# ! This is a development build, use at your own risk !
-
 # Fraud Detection for twitter
 The purpose of this program is to detect fraud on twitter. It does this by targeting a specific companies handle (for example @sprint). It then will read any twitter user that complains to @sprint and begins monitoring for people responding to that tweet that are offering help. If they are not an official supported account then they are marked as fraudulent.
 
