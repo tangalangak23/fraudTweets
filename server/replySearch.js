@@ -123,7 +123,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
         return 0;
       }
       //Begin processing all the tweets found
-      for (i = 0; i < tweets.statuses.length; i++) {
+      for (i = tweets.statuses.length-1; i >= 0; i++) {
         //If the tweets are not null and not retweet gather info else continue to next tweet
         if (tweets.statuses[i].in_reply_to_status_id_str!=null && tweets.statuses[i].text[0] != "R" && tweets.statuses[i].text[1] != "T") {
           replyId = (tweets.statuses[i].in_reply_to_status_id_str);
