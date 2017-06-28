@@ -199,7 +199,7 @@ function editDistance(st1,st2){
   for(i=1;i<=st2.length;i++){
     for(j=1;j<st1.length+1;j++){
       cost=0;
-      if(st1[i-1]!=st2[j-1]){
+      if(st1[j-1]!=st2[i-1]){
         cost=1;
       }
       temp=[];
