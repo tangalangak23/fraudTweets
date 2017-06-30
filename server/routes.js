@@ -75,9 +75,15 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.get('/getStats',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
+        var tweets=db.collection("tweets");
         collection.find({name:"statistics"}).toArray(function(err,item){
-          db.close();
-          res.json(item[0]);
+          var result = item[0];
+          tweets.aggregate([{$match:{replyFound:true}},{$group:{_id:"$replyFound",average:{$avg:"$responseTime"}}}]).toArray(function(err,data){
+            if(err) console.log(err);
+            result.averageResponseTime=data[0].average;
+            db.close();
+            res.json(result);
+          });
         });
       });
     });
