@@ -35,9 +35,9 @@ require("./manage.js")(MongoClient,config);
 
 //use searches startSearch function and replySearch startReplyIndexing functions
 //To start searching for tweets and replies
-//startSearch();
-//startReplyIndexing();
-//startManage();
+startSearch();
+startReplyIndexing();
+startManage();
 
 //require passport for authentication, pass it dependencies
 require('./config/passport')(MongoClient, passport,mongo,md5,config.url);
