@@ -76,11 +76,26 @@ db.createCollection("users")
 {name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
 ```
 
+## Running
+- ### Foreground
+To run in the foreground simply navigate to the server and 'node' the index file.
+```
+cd WORKING_PATH/fraud/server/
+node index.js
+```
+- ### Background
+For running in the background I recomend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
+```
+cd WORKING_PATH/fraud/server/
+forever start index.js
+```
+
 ## Stats
 - #### 1,391 Lines of JavaScript
 - #### 441 Lines of HTML
 - #### 109 Lines of CSS
-- #### 1,941 Total Lines Written
+- #### 103 Lines of MD (This totally counts...)
+- #### 2,044 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
