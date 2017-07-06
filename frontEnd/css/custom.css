@@ -7,6 +7,9 @@
 }
 .row{
   text-align: center;
+}
+.stats{
+  text-align: center;
   border: 1px;
   border-style: solid;
   border-radius: 6px;
