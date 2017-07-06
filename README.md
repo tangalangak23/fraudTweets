@@ -24,7 +24,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 - Stylized datatables plugin to show tweet info
 
 ## Requirements
-- In high volume case 2 twitter app keys are used, one for tweet gathering and one for reply searching.
+- In high volume case ass many twitter app keys can be used as are required and will function in a round robin manner.
 - Nodejs
 - MongoDB
 
