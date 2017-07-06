@@ -77,13 +77,15 @@ db.createCollection("users")
 ```
 
 ## Running
-- ### Foreground
+- #### Foreground
+
 To run in the foreground simply navigate to the server and 'node' the index file.
 ```
 cd WORKING_PATH/fraud/server/
 node index.js
 ```
-- ### Background
+- #### Background
+
 For running in the background I recomend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
 ```
 cd WORKING_PATH/fraud/server/
@@ -94,8 +96,8 @@ forever start index.js
 - #### 1,443 Lines of JavaScript
 - #### 483 Lines of HTML
 - #### 135 Lines of CSS
-- #### 112 Lines of MD (This totally counts...)
-- #### 2,161 Total Lines Written
+- #### 114 Lines of MD (This totally counts...)
+- #### 2,163 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
