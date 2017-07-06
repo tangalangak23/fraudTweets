@@ -81,3 +81,12 @@ $('#passwordForm').click(function(ev) {
     $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
   }
 });
+
+$(window).resize(function() {
+  if($("body").height()<$(window).height()){
+    $(".footer").attr("style","position:fixed;");
+  }
+  else{
+    $(".footer").attr("style","position:static;");
+  }
+});
