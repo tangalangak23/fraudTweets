@@ -22,7 +22,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 - Stylized datatables plugin to show tweet info
 
 ## Requirements
-- In high volume case 2 twitter app keys are used, one for tweet gathering and one for reply searching.
+- In high volume case ass many twitter app keys can be used as are required and will function in a round robin manner.
 - Nodejs
 - MongoDB
 
@@ -74,11 +74,28 @@ db.createCollection("users")
 {name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
 ```
 
+## Running
+- #### Foreground
+
+To run in the foreground simply navigate to the server and 'node' the index file.
+```
+cd WORKING_PATH/fraud/server/
+node index.js
+```
+- #### Background
+
+For running in the background I recomend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
+```
+cd WORKING_PATH/fraud/server/
+forever start index.js
+```
+
 ## Stats
-- #### 1,284 Lines of JavaScript
-- #### 441 Lines of HTML
-- #### 109 Lines of CSS
-- #### 1,834 Total Lines Written
+- #### 1,443 Lines of JavaScript
+- #### 483 Lines of HTML
+- #### 135 Lines of CSS
+- #### 114 Lines of MD (This totally counts...)
+- #### 2,163 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten

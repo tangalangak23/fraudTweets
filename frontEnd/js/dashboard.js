@@ -31,7 +31,16 @@ var table=$("#tweets").DataTable({
         $(nRow).addClass('toMany');
       }
     }
-})
+});
+
+$("select").click(function() {
+  if($("body").height()<$(window).height()){
+    $(".footer").attr("style","position:fixed;");
+  }
+  else{
+    $(".footer").attr("style","position:static;");
+  }
+});
 var id;
 
 //When a table row is clicked get the relevant info and display it in the modals
@@ -128,5 +137,14 @@ $('#passwordForm').click(function(ev) {
   else{
     $("#message").text("Updating Password");
     $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
+  }
+});
+
+$(window).resize(function() {
+  if($("body").height()<$(window).height()){
+    $(".footer").attr("style","position:fixed;");
+  }
+  else{
+    $(".footer").attr("style","position:static;");
   }
 });

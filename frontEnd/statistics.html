@@ -11,40 +11,31 @@
   <link rel=stylesheet href=css/custom.css>
 </head>
 <body>
-  <div class="header">
-    <h2 style="text-align:left;"><a href="/home"><b>Fraud</b>Tweets</a><span style="float:right;">
+  <div class="header" style="text-align:left;">
+    <div class="navLink"><h3 style="margin:0;"><img src="img/iqor.png" height=40> <b>Fraud</b>Tweets</h3></div>
+    <div class="navLink"><h4><a href="/home">Home</a></h4></div>
+    <div class="navLink current"><h4><a href="/generalStatistcs">Statistics</a></h4></div>
+    <div class="navLink"><h4><a href="/configHandles">Verified Handles</a></h4></div>
+    <div class="navLink"><h4><a href="/configTerms">Search Terms</a></h4></div>
+    <div class="uac" style="float:right;">
       <div class="dropdown">
-      <b data-toggle="dropdown">User <img src="img/person.png" style="height:40px"></b>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li><a id="generalUAC">General Account Settings</a></li>
-          <li><a id="changePassword">Change Password</a></li>
-          <li class="divider"></li>
-          <li><a href="/logout">Logout</a></li>
-        </ul>
+        <img src="img/person.png" data-toggle="dropdown" style="height:40px">
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a id="generalUAC">General Account Settings</a></li>
+            <li><a id="changePassword">Change Password</a></li>
+            <li class="divider"></li>
+            <li><a href="/logout">Logout</a></li>
+          </ul>
       </div>
-    </span></h2>
+    </div>
   </div>
   <div class="navBar">
-    <h5 class="navLink">Statistics</h5><h5 class="navLink"><a href="/configHandles">Verified Handles</a></h5> <h5 class="navLink"><a href="/configTerms">Search Terms</a></h5>
-  </div>
-  <div class="jumbotron">
-    <h1>Welcome to the statistics page</h1>
-    <h3>Below are some general statistics about observed tweets</h3>
   </div>
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
-        <h1>Total Tweets<br>
-          <span id="totalCount"></span>
-        </h1>
-      </div>
-      <div class="col-md-6">
-        <h1>Negative Tweets<br>
-          <span id="negativeCount"></span>
-        </h1>
-      </div>
+      <div class="col-md-12"><h1>Statistics</h1></div>
     </div>
-    <div class="row">
+    <div class="row stats">
       <div class="col-md-6">
         <h1>Average Total Score<br>
           <span id="totalAverage"></span>
@@ -56,7 +47,24 @@
         </h1>
       </div>
     </div>
-    <div class="row">
+    <div class="row stats">
+      <div class="col-md-4">
+        <h1>Total Tweets<br>
+          <span id="totalCount"></span>
+        </h1>
+      </div>
+      <div class="col-md-4">
+        <h1>Negative Tweets<br>
+          <span id="negativeCount"></span>
+        </h1>
+      </div>
+      <div class="col-md-4">
+        <h1>Response Time<br>
+          <span id="responseTime"></span>
+        </h1>
+      </div>
+    </div>
+    <div class="row stats">
       <div class="col-md-4">
         <h1>Responses Found<br>
           <span id="responsesFound"></span>
@@ -68,11 +76,12 @@
         </h1>
       </div>
       <div class="col-md-4">
-        <h1>Percent Fraud<br>
+        <h1>Potential Fraud<br>
           <span id="fraudResponses"></span>
         </h1>
       </div>
     </div>
+  </div>
   <div id='generalAccount' class="modal" style="display:none;">
     <div class="container inner">
       <h2>
@@ -108,6 +117,9 @@
       <h5><b id="message"></b></h5></div>
     </div>
   </div>
+  <footer class="footer">
+    <b>©2017 iQor</b>
+  </footer>
   <script src="js/statistics.js"></script>
 </body>
 </html>

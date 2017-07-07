@@ -1,39 +1,33 @@
-var urlcodeJSON=require("urlcode-json");
-var fs = require('fs');
-var Twitter=require("twitter");
-var sentiment=require("sentiment");
-var config;
-try {
-	config = JSON.parse(fs.readFileSync('./server/config/authorization.json', 'utf8'));
-} catch (e) {
-	console.log('No config file found. Using defaults.');
+//Function for calculating the levenshtein distane algorithm
+function editDistance(st1,st2){
+  var distance=[[]];
+  //Initalize matrix for levenshtein costs
+  for(i=0;i<=st2.length;i++){
+    distance[i]=new Array(st1.length+1);
+  }
+  for(i=0;i<=st2.length;i++){
+    distance[i][0]=i;
+  }
+  for(i=0;i<=st1.length;i++){
+    distance[0][i]=i;
+  }
+  //Calculate the scores in each cell
+  for(i=1;i<=st2.length;i++){
+    for(j=1;j<st1.length+1;j++){
+      cost=0;
+      if(st1[j-1]!=st2[i-1]){
+        cost=1;
+      }
+      temp=[];
+      temp.push(distance[i-1][j]+1);
+      temp.push(distance[i][j-1]+1);
+      temp.push(distance[i-1][j-1]+cost);
+      distance[i][j]=Math.min.apply(Math,temp);
+    }
+  }
+  //Return the distance
+	console.log(distance);
+  return(distance[st2.length][st1.length]);
 }
 
-client=new Twitter({
-  consumer_key:config.keys[3].CONSUMER_KEY,
-  consumer_secret:config.keys[3].CONSUMER_SECRET,
-  access_token_key: config.keys[3].ACCESS_KEY,
-  access_token_secret: config.keys[3].ACCESS_SECRET
-});
-console.log("Hello");
-var query={
-  screen_name:"NanoAged",
-	count:20,
-	exclude_replies:true,
-  include_rts:false
-};
-query=urlcodeJSON.encode(query);
-
-client.get(("statuses/user_timeline.json?"+query),function(error,tweets){
-  if(error){
-    console.log(error);
-    return -1;
-  }
-	var average=0;
-	for(i=0;i<tweets.length;i++){
-		average=average+(sentiment(tweets[i].text).score);
-	}
-	average=(average/tweets.length).toFixed(2);
-	console.log(average);
-});
-console.log("World");
+console.log(editDistance("test","sprintcare"));

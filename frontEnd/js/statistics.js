@@ -37,6 +37,7 @@ $.get("/getStats",function(data){
   $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
   $("#validResponses").text("%"+percent);
   $("#fraudResponses").text("%"+(100-percent).toFixed(2));
+  $("#responseTime").text((data.averageResponseTime).toFixed(2)+" min.");
 });
 
 //Hide UAC and password modal when clicked outside of
@@ -79,5 +80,14 @@ $('#passwordForm').click(function(ev) {
   else{
     $("#message").text("Updating Password");
     $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
+  }
+});
+
+$(window).resize(function() {
+  if($("body").height()<$(window).height()){
+    $(".footer").attr("style","position:fixed;");
+  }
+  else{
+    $(".footer").attr("style","position:static;");
   }
 });

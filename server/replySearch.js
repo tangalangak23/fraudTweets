@@ -123,7 +123,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
         return 0;
       }
       //Begin processing all the tweets found
-      for (i = 0; i < tweets.statuses.length; i++) {
+      for (i = 0; i <tweets.statuses.length-1; i++) {
         //If the tweets are not null and not retweet gather info else continue to next tweet
         if (tweets.statuses[i].in_reply_to_status_id_str!=null && tweets.statuses[i].text[0] != "R" && tweets.statuses[i].text[1] != "T") {
           replyId = (tweets.statuses[i].in_reply_to_status_id_str);
@@ -199,7 +199,7 @@ function editDistance(st1,st2){
   for(i=1;i<=st2.length;i++){
     for(j=1;j<st1.length+1;j++){
       cost=0;
-      if(st1[i-1]!=st2[j-1]){
+      if(st1[j-1]!=st2[i-1]){
         cost=1;
       }
       temp=[];
