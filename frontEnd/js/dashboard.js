@@ -112,6 +112,7 @@ $("#reset").click(function(){
 
 //Get the search terms and generate the input fields
 function getManagment(){
+  handles=[];
   $.get("/get"+managePage,function(data){
     $("#handlesContainter").html("");
     if(managePage=="Terms"){
@@ -123,7 +124,7 @@ function getManagment(){
       handles=data.value;
     }
     for(i=0;i<handles.length;i++){
-      temp="<tr><td><input type='text' class='form-control' data-new='no' value='"+handles[i]+"'></td><td><input class='form-control' type='checkbox' id='"+i+"'></td></tr>";
+      temp="<tr><td><input type='text' class='form-control manage' data-new='no' value='"+handles[i]+"'></td><td><input class='form-control manage' type='checkbox' id='"+i+"'></td></tr>";
       $("#handlesContainter").append(temp);
     }
   });
@@ -131,13 +132,14 @@ function getManagment(){
 
 //Handle creating a new input field for additional terms
 $("#add").click(function(){
-  temp="<tr><td><input type='text' data-new='yes' class='form-control'></td><td><input class='form-control' type='checkbox' value='new'></td></tr>";
+  temp="<tr><td><input type='text' data-new='yes' class='form-control manage'></td><td><input class='form-control manage' type='checkbox' value='new'></td></tr>";
   $("#handlesContainter").append(temp);
 });
 
 //Handle the update by creating a new list of search terms and posting to /updateTerms
 $("#update").click(function(){
-  $("input").each(function(data,obj){
+  $(".manage").each(function(data,obj){
+    console.log(data);
     type=$(obj).attr("type");
     newHandle=$(obj).attr("data-new");
     val=$(obj).val();
@@ -168,6 +170,7 @@ $("#update").click(function(){
       }
     }
   }
+  console.log(handles);
   $.post("/update"+managePage,{"newValues":handles});
   location.reload();
 });
@@ -284,6 +287,8 @@ var routes = Backbone.Router.extend({
     updateFooter();
   },
   handles: function(){
+    $("#manageH1").text("Manage the verified handles below");
+    $("#manageH3").text("A verified handle is a handle that will not flag as fraud when they reply offering help.");
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").hide();
@@ -292,11 +297,12 @@ var routes = Backbone.Router.extend({
     $("#handleLink").addClass("current");
     $("#termLink").removeClass("current");
     managePage="Handles";
-    handles=[];
     getManagment();
     updateFooter();
   },
   terms: function(){
+    $("#manageH1").text("Manage the search terms below");
+    $("#manageH3").text("Search terms can either be @term or #term");
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").hide();
@@ -305,7 +311,6 @@ var routes = Backbone.Router.extend({
     $("#handleLink").removeClass("current");
     $("#termLink").addClass("current");
     managePage="Terms";
-    handles=[];
     getManagment();
     updateFooter();
   }
