@@ -1,3 +1,6 @@
+var handles=[];
+var managePage="";
+
 //Initialize DataTable
 var table=$("#tweets").DataTable({
     columns: [
@@ -107,6 +110,69 @@ $("#reset").click(function(){
   location.reload();
 });
 
+//Get the search terms and generate the input fields
+function getManagment(){
+  $.get("/get"+managePage,function(data){
+    $("#handlesContainter").html("");
+    if(managePage=="Terms"){
+      for(i=0;i<data.length;i++){
+        handles.push(data[i].handle);
+      }
+    }
+    else{
+      handles=data.value;
+    }
+    for(i=0;i<handles.length;i++){
+      temp="<tr><td><input type='text' class='form-control' data-new='no' value='"+handles[i]+"'></td><td><input class='form-control' type='checkbox' id='"+i+"'></td></tr>";
+      $("#handlesContainter").append(temp);
+    }
+  });
+}
+
+//Handle creating a new input field for additional terms
+$("#add").click(function(){
+  temp="<tr><td><input type='text' data-new='yes' class='form-control'></td><td><input class='form-control' type='checkbox' value='new'></td></tr>";
+  $("#handlesContainter").append(temp);
+});
+
+//Handle the update by creating a new list of search terms and posting to /updateTerms
+$("#update").click(function(){
+  $("input").each(function(data,obj){
+    type=$(obj).attr("type");
+    newHandle=$(obj).attr("data-new");
+    val=$(obj).val();
+    if(type=="text"){
+      if(newHandle=='no'){
+        temp="#"+(data/2).toString();
+        if($(temp).is(":checked")){
+          if(managePage=="Terms"){
+            handles[data/2]="";
+          }
+          else{
+            handles.splice((data/2),1);
+          }
+        }
+        else{
+          handles[data/2]=val;
+        }
+      }
+      else if(val!="" && handles.indexOf(val)==-1){
+        handles.push(val)
+      }
+    }
+  });
+  if(managePage=="Terms"){
+    for(i=0;i<handles.length;i++){
+      if(handles[i]==""){
+        handles.pop(i)
+      }
+    }
+  }
+  $.post("/update"+managePage,{"newValues":handles});
+  location.reload();
+});
+
+
 //Get user info to show in UAC panel
 $("#generalUAC").click(function(){
   $.get("/getUser",function(data){
@@ -139,12 +205,110 @@ $('#passwordForm').click(function(ev) {
     $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
   }
 });
-
-$(window).resize(function() {
+function updateFooter(){
   if($("body").height()<$(window).height()){
     $(".footer").attr("style","position:fixed;");
   }
   else{
     $(".footer").attr("style","position:static;");
   }
+}
+$(window).resize(function() {
+  updateFooter();
 });
+
+var routes = Backbone.Router.extend({
+  routes: {
+    '': 'home',
+    "statistics": "stats",
+    "verifiedHandles": "handles",
+    'searchTerms': 'terms'
+  },
+  home: function(){
+    $("#dashboard").show();
+    $("#homeLink").addClass("current");
+    $("#statistics").hide();
+    $("#statsLink").removeClass("current");
+    $("#handle").hide();
+    $("#handleLink").removeClass("current");
+    $("#termLink").removeClass("current");
+    updateFooter();
+  },
+  stats: function(){
+    $.get("/getStats",function(data){
+      //Check the score and select the appropriate color
+      if(data.averageScore>=2){
+        totalColor="#43A047";
+      }
+      else if(data.averageScore>=0){
+        totalColor="#1E88E5";
+      }
+      else if(data.averageScore>=-2){
+        totalColor="#FDD835";
+      }
+      else{
+        totalColor="#E53935";
+      }
+      if(data.averageNegativeScore>=2){
+        negativeColor="#43A047";
+      }
+      else if(data.averageNegativeScore>=0){
+        negativeColor="#1E88E5";
+      }
+      else if(data.averageNegativeScore>=-2){
+        negativeColor="#FDD835";
+      }
+      else{
+        negativeColor="#E53935";
+      }
+      //Set statistic values
+      $("#totalAverage").text((data.averageScore).toFixed(2)).css('color', totalColor);
+      $("#negativeAverage").text((data.averageNegativeScore).toFixed(2)).css('color', negativeColor);
+      $("#totalCount").text(data.count);
+      $("#negativeCount").text(data.negativeCount);
+      //Calculate the total replies found and the percents
+      var total=data.validRepliesFound+data.fraudulentRepliesFound;
+      var percent=+(data.validRepliesFound/total*100).toFixed(2);
+      $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
+      $("#validResponses").text("%"+percent);
+      $("#fraudResponses").text("%"+(100-percent).toFixed(2));
+      $("#responseTime").text((data.averageResponseTime).toFixed(2)+" min.");
+    });
+    $("#dashboard").hide();
+    $("#homeLink").removeClass("current");
+    $("#statistics").show();
+    $("#statsLink").addClass("current");
+    $("#handle").hide();
+    $("#handleLink").removeClass("current");
+    $("#termLink").removeClass("current");
+    updateFooter();
+  },
+  handles: function(){
+    $("#dashboard").hide();
+    $("#homeLink").removeClass("current");
+    $("#statistics").hide();
+    $("#statsLink").removeClass("current");
+    $("#handle").show();
+    $("#handleLink").addClass("current");
+    $("#termLink").removeClass("current");
+    managePage="Handles";
+    handles=[];
+    getManagment();
+    updateFooter();
+  },
+  terms: function(){
+    $("#dashboard").hide();
+    $("#homeLink").removeClass("current");
+    $("#statistics").hide();
+    $("#statsLink").removeClass("current");
+    $("#handle").show();
+    $("#handleLink").removeClass("current");
+    $("#termLink").addClass("current");
+    managePage="Terms";
+    handles=[];
+    getManagment();
+    updateFooter();
+  }
+});
+var appRoutes = new routes();
+Backbone.history.start();

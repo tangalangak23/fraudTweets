@@ -24,10 +24,6 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "searchTerms.html");
     });
 
-    app.use('/generalStatistcs',isLoggedIn, function(req, res) {
-      send(res, "statistics.html");
-    });
-
     //handle login event
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section
@@ -95,7 +91,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/updateHandles',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
-        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newHandles}, function (err, item) {
+        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newValues}, function (err, item) {
           console.log("Updated handles");
         });
         db.close();
@@ -106,7 +102,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/updateTerms',isLoggedIn, function(req, res) {
       var current="";
       //get the new terms from the post
-      var newTerms=req.body.newTerms;
+      var newTerms=req.body.newValues;
       //get the current terms from mongo
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");

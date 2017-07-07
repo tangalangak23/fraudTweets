@@ -5,6 +5,9 @@
   background-position: center;
   display: none;
 }
+.container{
+  display: none;
+}
 .row{
   text-align: center;
 }
