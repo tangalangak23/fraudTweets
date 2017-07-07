@@ -16,14 +16,6 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "dashboard.html");
     });
 
-    app.use('/configHandles',isLoggedIn, function(req, res) {
-      send(res, "handles.html");
-    });
-
-    app.use('/configTerms',isLoggedIn, function(req, res) {
-      send(res, "searchTerms.html");
-    });
-
     //handle login event
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section

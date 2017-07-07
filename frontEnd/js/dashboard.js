@@ -228,6 +228,7 @@ var routes = Backbone.Router.extend({
     'searchTerms': 'terms'
   },
   home: function(){
+    $("#tweets").attr("style","");
     $("#dashboard").show();
     $("#homeLink").addClass("current");
     $("#statistics").hide();
