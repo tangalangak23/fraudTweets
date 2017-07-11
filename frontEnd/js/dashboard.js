@@ -5,11 +5,26 @@ var managePage="";
 var table=$("#tweets").DataTable({
     columns: [
         {data: "_id"},
+        {data: "dateTime"},
         {data: "user.screenName"},
         {data:"handle"},
         {data:"responseTime"},
         {data: "score"},
         {data: "fraud"}
+    ],
+    "columnDefs": [
+        {
+          "targets": [ 3 ],
+          "searchable": false
+        },
+        {
+          "targets": [ 1 ],
+          "orderable": false
+        },
+        {
+          "targets": [ 0 ],
+          "visible": false
+        }
     ],
     "order": [[ 0, "desc" ]],
     "searching": true,
@@ -48,8 +63,8 @@ var id;
 
 //When a table row is clicked get the relevant info and display it in the modals
 $("#tweets tbody").on("click", "tr", function (event) {
-  var name=$(this).find("td:nth-child(2)").text();
-  id=$(this).find("td:nth-child(1)").text();
+  var name=table.row(this).data().screenName;
+  id=table.row(this).data()._id;
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
       $("#reset").hide();
