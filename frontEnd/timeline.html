@@ -26,6 +26,7 @@
   $.get("/getTimeline",function(data){
     tweets=data;
     for(i=0;i<j;i++){
+      $("#content").append("<div class='row' style='text-align:left;width:50%;margin:auto;'>Trend: "+tweets[i].handle+"<span style='float:right;'>Score"+tweets[i].score+"</span></div>")
       $("#content").append("<div class='new' style='display: flex;justify-content: center;align-items: center;' id='"+tweets[i]._id+"' tweetID='"+data[i]._id+"'></div>")
       embed();
     }
@@ -43,13 +44,14 @@
   function loadMore(){
     var current=tweets[i]._id;
     for(i;i<j;i++){
+      $("#content").append("<div class='row' style='text-align:left;width:50%;margin:auto;'>Trend: "+tweets[i].handle+"<span style='float:right;'>Score"+tweets[i].score+"</span></div>")
       $("#content").append("<div class='new' style='display: flex;justify-content: center;align-items: center;' id='"+tweets[i]._id+"' tweetID='"+tweets[i]._id+"'></div>");
       embed();
     }
     j+=10;
     $("#load").hide();
     $('html, body').animate({
-        scrollTop: $("#"+current).offset().top-60
+        scrollTop: $("#"+current).offset().top-80
     }, 1500);
     setTimeout(function(){active=false},1000);
   }
@@ -59,10 +61,10 @@
       twttr.widgets.createTweet(
         $(item).attr("tweetID"), item,
         {
-          conversation : 'none',    // or all
-          cards        : 'hidden',  // or visible
-          linkColor    : '#d32f2f',  // or visible
-          theme        : 'light'    // or dark
+          conversation : 'none',
+          cards : 'hidden',
+          linkColor : '#d32f2f',
+          theme : 'light'
         });
         $(item).removeClass("new");
     });
