@@ -1,0 +1,72 @@
+<html>
+<head>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel=stylesheet href=css/custom.css>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://platform.twitter.com/widgets.js"></script>
+</head>
+<body>
+  <div class="header" style="text-align:left;position:fixed;width:100%;height:60px;top:0;">
+    <div class="navLink"><h3 style="margin:0;"><img src="img/iqor.png" height=40> <b>Fraud</b>Tweets</h3></div>
+  </div>
+    <div class="container" id="content" style="margin-top:70px;margin-bottom:70px;" >
+
+    </div>
+    <footer class="footer" style="display:flex;justify-content:center;allign-items:center;height:40px;">
+      <img src="img/loader.gif" style="display:none;" id="load" height=30 width=auto>
+    </footer>
+
+  <script>
+  var tweets=[];
+  var i;
+  var j=16;
+  var active=false;
+  $.get("/getTimeline",function(data){
+    tweets=data;
+    for(i=0;i<j;i++){
+      $("#content").append("<div class='new' style='display: flex;justify-content: center;align-items: center;' id='"+tweets[i]._id+"' tweetID='"+data[i]._id+"'></div>")
+      embed();
+    }
+    j+=10;
+  });
+
+  window.onscroll = function(ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight-50 && !active) {
+      $("#load").show();
+      active=true;
+      setTimeout(loadMore,1000);
+    }
+  };
+
+  function loadMore(){
+    var current=tweets[i]._id;
+    for(i;i<j;i++){
+      $("#content").append("<div class='new' style='display: flex;justify-content: center;align-items: center;' id='"+tweets[i]._id+"' tweetID='"+tweets[i]._id+"'></div>");
+      embed();
+    }
+    j+=10;
+    $("#load").hide();
+    $('html, body').animate({
+        scrollTop: $("#"+current).offset().top-60
+    }, 1500);
+    setTimeout(function(){active=false},1000);
+  }
+
+  function embed(){
+    $(".new").each(function(data,item){
+      twttr.widgets.createTweet(
+        $(item).attr("tweetID"), item,
+        {
+          conversation : 'none',    // or all
+          cards        : 'hidden',  // or visible
+          linkColor    : '#d32f2f',  // or visible
+          theme        : 'light'    // or dark
+        });
+        $(item).removeClass("new");
+    });
+  }
+  </script>
+</body>
+</html>

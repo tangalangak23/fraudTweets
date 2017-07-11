@@ -16,6 +16,11 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "dashboard.html");
     });
 
+    //front end tweet view
+    app.use('/hidden',isLoggedIn, function(req, res) {
+      send(res, "timeline.html");
+    });
+
     //handle login event
     app.post('/login', passport.authenticate('local-login', {
       successRedirect: '/home', // redirect to the secure profile section
@@ -27,6 +32,17 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
         tweets.find().toArray(function(err,item){
+          db.close();
+          res.json(item);
+        });
+      });
+    });
+
+    //handle rest requests to get data from mongoDB
+    app.get('/getTimeline',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var tweets=db.collection("tweets");
+        tweets.find({},{_id:1,score:1,handle:1}).sort({_id:-1}).toArray(function(err,item){
           db.close();
           res.json(item);
         });
