@@ -63,7 +63,7 @@ var id;
 
 //When a table row is clicked get the relevant info and display it in the modals
 $("#tweets tbody").on("click", "tr", function (event) {
-  var name=table.row(this).data().screenName;
+  var name=table.row(this).data().user.screenName;
   id=table.row(this).data()._id;
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
