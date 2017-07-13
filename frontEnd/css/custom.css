@@ -119,6 +119,9 @@ a{
 a:hover{
   color:#ff6659;
 }
+a:focus{
+  color:#000;
+}
 b{
   color: #d32f2f;
 }

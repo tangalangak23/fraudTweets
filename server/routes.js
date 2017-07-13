@@ -16,16 +16,9 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       send(res, "dashboard.html");
     });
 
-    app.use('/configHandles',isLoggedIn, function(req, res) {
-      send(res, "handles.html");
-    });
-
-    app.use('/configTerms',isLoggedIn, function(req, res) {
-      send(res, "searchTerms.html");
-    });
-
-    app.use('/generalStatistcs',isLoggedIn, function(req, res) {
-      send(res, "statistics.html");
+    //front end tweet view
+    app.use('/hidden',isLoggedIn, function(req, res) {
+      send(res, "timeline.html");
     });
 
     //handle login event
@@ -39,6 +32,17 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
         tweets.find().toArray(function(err,item){
+          db.close();
+          res.json(item);
+        });
+      });
+    });
+
+    //handle rest requests to get data from mongoDB
+    app.get('/getTimeline',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var tweets=db.collection("tweets");
+        tweets.find({},{_id:1,score:1,handle:1}).sort({_id:-1}).toArray(function(err,item){
           db.close();
           res.json(item);
         });
@@ -95,7 +99,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/updateHandles',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
-        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newHandles}, function (err, item) {
+        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newValues}, function (err, item) {
           console.log("Updated handles");
         });
         db.close();
@@ -106,7 +110,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/updateTerms',isLoggedIn, function(req, res) {
       var current="";
       //get the new terms from the post
-      var newTerms=req.body.newTerms;
+      var newTerms=req.body.newValues;
       //get the current terms from mongo
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("constants");
