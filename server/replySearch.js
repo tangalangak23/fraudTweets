@@ -231,10 +231,12 @@ module.exports=function(MongoClient,config,urlcodeJSON){
 	this.singleReply=function(){
     //Find the verified handles from the databse then begin search
     MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("constants");
-        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
+        collection = db.collection("searches");
+        collection.find().toArray(function (err, item) {
           db.close();
-          searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());
+          for(i=0;i<item.length;i++){
+            searchReply(MongoClient,config,urlcodeJSON,item[i].verified.toString());
+          }
         });
     });
 	}
@@ -242,10 +244,12 @@ module.exports=function(MongoClient,config,urlcodeJSON){
 	this.startReplyIndexing=function(){
     //Find the verified handles from the databse then begin search
     MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("constants");
-        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
+        collection = db.collection("searches");
+        collection.find().toArray(function (err, item) {
           db.close();
-          setInterval(function(){searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());},60000);
+          for(i=0;i<item.length;i++){
+            setInterval(function(){searchReply(MongoClient,config,urlcodeJSON,item[i].verified.toString());},60000);
+          }
         });
     });
 	}

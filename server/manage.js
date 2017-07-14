@@ -54,6 +54,7 @@ function reset(MongoClient,config){
     if(err) console.log(err);
     var tweets=db.collection("tweets");
     var constants=db.collection("constants");
+    var searches=db.collection("searches");
     //Reset statistics
     constants.updateMany({name:"statistics"},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
       if(err){
@@ -61,7 +62,7 @@ function reset(MongoClient,config){
         return -1;
       }
       //Reset lastID found
-      constants.updateMany({name:"lastID"},{$set:{value:"0"}},function(err,item){
+      searches.updateMany({},{$set:{LastID:[]}},function(err,item){
         if(err){
           console.log(err);
           return -1;

@@ -13,24 +13,26 @@ var lastID;
 function searchTweets(MongoClient,config,urlcodeJSON){
   //Connect to mongo db and pull relevant information to start the search
   MongoClient.connect(config.url,function(err,db){
-    var constants=db.collection("constants");
-    constants.find({"name":"lastID"}).toArray(function(err,item){
-      //For each of the items names lastID (Which is the name attribute for search terms) run the search
+    var searches=db.collection("searches");
+    //Find search entries
+    searches.find({}).toArray(function(err,item){
       for(i=0;i<item.length;i++){
-        //Select the appropriate authorization key to use from the config file
-        keyNum=i%config.keys.length;
-        //Get relevant info from db record
-        lastID=item[i].value;
-        handle=item[i].handle;
-        //Create a twitter client with the key selected above
-        client=new Twitter({
-          consumer_key:config.keys[keyNum].CONSUMER_KEY,
-          consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
-          access_token_key: config.keys[keyNum].ACCESS_KEY,
-          access_token_secret: config.keys[keyNum].ACCESS_SECRET
-        });
-        //Run the search given the information from above
-        query(handle,lastID,client)
+        for(j=0;j<item[i].terms.length;j++){
+          //Select the appropriate authorization key to use from the config file
+          keyNum=j%config.keys.length;
+          //Get relevant info from db record
+          lastID=item[i].lastID;
+          handle=item[i].terms[j];
+          //Create a twitter client with the key selected above
+          client=new Twitter({
+            consumer_key:config.keys[keyNum].CONSUMER_KEY,
+            consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+            access_token_key: config.keys[keyNum].ACCESS_KEY,
+            access_token_secret: config.keys[keyNum].ACCESS_SECRET
+          });
+          //Run the search given the information from above
+          query(handle,lastID,client,item[i].name,j)
+        }
       }
     });
     db.close();
@@ -120,14 +122,14 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     });
   }
 
-  function query(handle,lastID,client){
+  function query(handle,lastID,client,searchName,index){
     var scores=[];
     //Setup and encode query to be used with Twitter
     var query={
       q:encodeURIComponent(handle),
       result_type:"recent",
       count:100,
-      since_id:lastID
+      since_id:lastID[index]
     };
     query=urlcodeJSON.encode(query);
 
@@ -192,6 +194,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
               "score":score,
               "dateTime":tweets.statuses[i].created_at,
               "handle":handle,
+              "searchName":name,
               "replyFound":false,
               "fraud":null,
               "attempts":0,
@@ -205,8 +208,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         }
         //Update general statistics and the lastID found in the db
         updateStatistics(scores);
-        var constants=db.collection("constants");
-        constants.update({"handle":handle},{name:"lastID","handle":handle,value:tweets.statuses[0].id_str});
+        var searches=db.collection("searches");
+        lastID[index]=tweets.statuses[0].id_str;
+        searches.update({"name":searchName},{$set:{"lastID":lastID}});
         console.log("Search complete\n");
         db.close()
       });
@@ -225,6 +229,7 @@ module.exports=function(MongoClient,config,urlcodeJSON){
 
   //Run a single search of the search terms and set up a recuring search every minute (60000 miliseconds)
 	this.startSearch=function(){
+    console.log("here");
 		searchTweets(MongoClient,config,urlcodeJSON);
 		setInterval(function(){searchTweets(MongoClient,config,urlcodeJSON);},60000);
 	}

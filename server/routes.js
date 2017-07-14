@@ -56,20 +56,10 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       res.json(temp);
     });
 
-    app.get('/getHandles',isLoggedIn, function(req, res) {
+    app.get('/getSearches',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
-        collection.find({name:"verifiedHandles"}).toArray(function(err,item){
-          db.close();
-          res.json(item[0]);
-        });
-      });
-    });
-
-    app.get('/getTerms',isLoggedIn, function(req, res) {
-      MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
-        collection.find({name:"lastID"}).toArray(function(err,item){
+        var searches=db.collection("searches");
+        searches.find({}).toArray(function(err,item){
           db.close();
           res.json(item);
         });
@@ -94,64 +84,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
 
     //Handle post events
 
-    //Update the stored handles in the database from a post in the front end with the format
-    //{newhandles:["HANDLE","HANDLE"]}
-    app.post('/updateHandles',isLoggedIn, function(req, res) {
-      MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
-        collection.update({name: "verifiedHandles"},{name:"verifiedHandles",value:req.body.newValues}, function (err, item) {
-          console.log("Updated handles");
-        });
-        db.close();
-      });
-    });
-
-    //Update the search terms
-    app.post('/updateTerms',isLoggedIn, function(req, res) {
-      var current="";
-      //get the new terms from the post
-      var newTerms=req.body.newValues;
-      //get the current terms from mongo
-      MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
-        collection.find({name:"lastID"}).toArray(function(err,item){
-          db.close();
-          var temp=newTerms.toString();
-          //if there are terms in existing not in new remove the terms
-          for(i=0;i<item.length;i++){
-            current+=item[i].handle+",";
-            if(!temp.includes(item[i].handle)){
-              MongoClient.connect(url,function(err,db){
-                var collection=db.collection("constants");
-                collection.remove({handle:item[i].handle},function(err,result){
-                  if(err){
-                    db.close();
-                    console.log(err);
-                  }
-                  db.close();
-                });
-              });
-            }
-          }
-          //if there are terms in new not in existing add to mongo
-          for(i=0;i<newTerms.length;i++){
-            if(!current.includes(newTerms[i])){
-              console.log("newTerm");
-              updateTerms(newTerms[i]);
-            }
-          }
-        });
-      });
-    });
-
-    //function for adding new terms to mongo used by /updateTerms
-    function updateTerms(newTerm){
-      MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
-        db.collection('constants').insert({"name":"lastID","value":"0","handle":newTerm});
-        db.close();
-      });
-    }
+    
 
     //update user info from general UAC form.
     app.post('/updateUser',isLoggedIn, function(req, res) {

@@ -1,5 +1,4 @@
-var handles=[];
-var managePage="";
+var searchesItem={};
 
 //Initialize DataTable
 var table=$("#tweets").DataTable({
@@ -125,72 +124,6 @@ $("#reset").click(function(){
   location.reload();
 });
 
-//Get the search terms and generate the input fields
-function getManagment(){
-  handles=[];
-  $.get("/get"+managePage,function(data){
-    $("#handlesContainter").html("");
-    if(managePage=="Terms"){
-      for(i=0;i<data.length;i++){
-        handles.push(data[i].handle);
-      }
-    }
-    else{
-      handles=data.value;
-    }
-    for(i=0;i<handles.length;i++){
-      temp="<tr><td><input type='text' class='form-control manage' data-new='no' value='"+handles[i]+"'></td><td><input class='form-control manage' type='checkbox' id='"+i+"'></td></tr>";
-      $("#handlesContainter").append(temp);
-    }
-  });
-}
-
-//Handle creating a new input field for additional terms
-$("#add").click(function(){
-  temp="<tr><td><input type='text' data-new='yes' class='form-control manage'></td><td><input class='form-control manage' type='checkbox' value='new'></td></tr>";
-  $("#handlesContainter").append(temp);
-});
-
-//Handle the update by creating a new list of search terms and posting to /updateTerms
-$("#update").click(function(){
-  $(".manage").each(function(data,obj){
-    console.log(data);
-    type=$(obj).attr("type");
-    newHandle=$(obj).attr("data-new");
-    val=$(obj).val();
-    if(type=="text"){
-      if(newHandle=='no'){
-        temp="#"+(data/2).toString();
-        if($(temp).is(":checked")){
-          if(managePage=="Terms"){
-            handles[data/2]="";
-          }
-          else{
-            handles.splice((data/2),1);
-          }
-        }
-        else{
-          handles[data/2]=val;
-        }
-      }
-      else if(val!="" && handles.indexOf(val)==-1){
-        handles.push(val)
-      }
-    }
-  });
-  if(managePage=="Terms"){
-    for(i=0;i<handles.length;i++){
-      if(handles[i]==""){
-        handles.pop(i)
-      }
-    }
-  }
-  console.log(handles);
-  $.post("/update"+managePage,{"newValues":handles});
-  location.reload();
-});
-
-
 //Get user info to show in UAC panel
 $("#generalUAC").click(function(){
   $.get("/getUser",function(data){
@@ -239,8 +172,7 @@ var routes = Backbone.Router.extend({
   routes: {
     '': 'home',
     "statistics": "stats",
-    "verifiedHandles": "handles",
-    'searchTerms': 'terms'
+    'searchManage': 'searches'
   },
   home: function(){
     $("#tweets").attr("style","");
@@ -248,9 +180,8 @@ var routes = Backbone.Router.extend({
     $("#homeLink").addClass("current");
     $("#statistics").hide();
     $("#statsLink").removeClass("current");
-    $("#handle").hide();
-    $("#handleLink").removeClass("current");
-    $("#termLink").removeClass("current");
+    $("#searches").hide();
+    $("#manageLink").removeClass("current");
     updateFooter();
   },
   stats: function(){
@@ -297,37 +228,39 @@ var routes = Backbone.Router.extend({
     $("#homeLink").removeClass("current");
     $("#statistics").show();
     $("#statsLink").addClass("current");
-    $("#handle").hide();
-    $("#handleLink").removeClass("current");
-    $("#termLink").removeClass("current");
+    $("#searches").hide();
+    $("#manageLink").removeClass("current");
     updateFooter();
   },
-  handles: function(){
-    $("#manageH1").text("Manage the verified handles below");
-    $("#manageH3").text("A verified handle is a handle that will not flag as fraud when they reply offering help.");
+  searches: function(){
+    $.get("/getSearches",function(data){
+      $("#searchNames").html("");
+      for(i=0;i<data.length;i++){
+        var item="<div class='row'><button class='btn' onclick='$(\"#"+data[i].name+"\").toggle(500)'>"+data[i].name+"</button></div>";
+        item+="<div id='"+data[i].name+"' style='display:none;'>";
+        item+="<div class='row'><div class='col-md-6'><table class='table table-striped' style='width:100%;'><thead><tr><th>Search Term</th><th>Remove</th></tr></thead><tbody>";
+        for(j=0;j<data[i].terms.length;j++){
+          item+="<tr><td>"+data[i].terms[j]+"</td><td><button class='btn btn-danger'>X</button></td></tr>";
+        }
+        item+="<tr><td><button class='btn btn-success' onclick='$(this).parent().parent().parent().append(\"<tr><td><input type=text class=form-control></td></tr>\")'>Add Item</button></td></td>"
+        item+="</tbody></table></div>";
+        item+="<div class='col-md-6'><table class='table table-striped' style='width:100%;'><thead><tr><th>Verified Responder</th><th>Remove</th></tr></thead><tbody>";
+        for(j=0;j<data[i].verified.length;j++){
+          item+="<tr><td>"+data[i].verified[j]+"</td><td><button class='btn btn-danger'>X</button></td></tr>";
+        }
+        item+="<tr><td><button class='btn btn-success' onclick='$(this).parent().parent().parent().append(\"<tr><td><input type=text class=form-control></td></tr>\")'>Add Item</button></td></td>"
+        item+="</tbody></table></div></div>";
+        item+="<div class='row'><button class='btn btn-primary'>Update Records</button></div>";
+        item+="</div>";
+        $("#searchNames").append(item);
+      }
+    });
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").hide();
     $("#statsLink").removeClass("current");
-    $("#handle").show();
-    $("#handleLink").addClass("current");
-    $("#termLink").removeClass("current");
-    managePage="Handles";
-    getManagment();
-    updateFooter();
-  },
-  terms: function(){
-    $("#manageH1").text("Manage the search terms below");
-    $("#manageH3").text("Search terms can either be @term or #term");
-    $("#dashboard").hide();
-    $("#homeLink").removeClass("current");
-    $("#statistics").hide();
-    $("#statsLink").removeClass("current");
-    $("#handle").show();
-    $("#handleLink").removeClass("current");
-    $("#termLink").addClass("current");
-    managePage="Terms";
-    getManagment();
+    $("#searches").show();
+    $("#manageLink").addClass("current");
     updateFooter();
   }
 });
