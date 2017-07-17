@@ -83,7 +83,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     });
 
     //Handle post events
-
+    //Add new search object
     app.post('/newSearch',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var searches=db.collection("searches");
@@ -93,7 +93,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         res.send("Succesfull");
       });
     });
-
+    //Remove search object
     app.post('/deleteSearch',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var searches=db.collection("searches");
@@ -104,15 +104,18 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         });
       });
     });
-
+    //Update Search object
     app.post("/updateSearches",isLoggedIn,function(req,res){
+      //Get posted data and find record in db
       var data=req.body.data;
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("searches");
         collection.find().toArray(function(err,item){
+          //Establish variables
           var change=false;
           var results=item[data.index];
           delete results._id;
+          //Check if values were changed and if so update results to reflect
           if(data.deleteTerms){
             change=true;
             for(i=0;i<data.deleteTerms.length;i++){
@@ -139,6 +142,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
               results.verified.splice(data.deleteHandles[i],1);
             }
           }
+          //If there has been a change update the record in the db
           if(change){
             collection.update({"name": results.name}, results, function (err, item) {
               console.log("Updated searches");

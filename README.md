@@ -99,13 +99,14 @@ forever start index.js
 ```
 
 ## Stats
-- #### 1,350 Lines of JavaScript
-- #### 327 Lines of HTML
-- #### 138 Lines of CSS
-- #### 105 Lines of MD (This totally counts...)
-- #### 1,920 Total Lines Written
+- #### 1,351 Lines of JavaScript
+- #### 375 Lines of HTML
+- #### 139 Lines of CSS
+- #### 112 Lines of MD (This totally counts...)
+- #### 1,977 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
 - #### 2 Cats pet
+- #### 1 Hailstorm driven through
 - #### 0 Coffees drank

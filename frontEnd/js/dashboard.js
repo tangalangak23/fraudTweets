@@ -303,6 +303,7 @@ var routes = Backbone.Router.extend({
     updateFooter();
   },
   searches: function(){
+    //Get search objects from db
     $.get("/getSearches",function(data){
       searchesItem=data;
       $("#searchSelector").html("");
