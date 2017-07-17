@@ -194,7 +194,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
               "score":score,
               "dateTime":tweets.statuses[i].created_at,
               "handle":handle,
-              "searchName":name,
+              "searchName":searchName,
               "replyFound":false,
               "fraud":null,
               "attempts":0,
@@ -229,7 +229,6 @@ module.exports=function(MongoClient,config,urlcodeJSON){
 
   //Run a single search of the search terms and set up a recuring search every minute (60000 miliseconds)
 	this.startSearch=function(){
-    console.log("here");
 		searchTweets(MongoClient,config,urlcodeJSON);
 		setInterval(function(){searchTweets(MongoClient,config,urlcodeJSON);},60000);
 	}

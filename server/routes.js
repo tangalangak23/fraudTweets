@@ -261,7 +261,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
 
       // if they aren't redirect them to the home page
       res.redirect('/');
-      console.log('Not logged in; redirecting...');
+      console.log('Not logged in redirecting...');
     }
 
     //function to simplify sending front end elements

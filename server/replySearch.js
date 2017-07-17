@@ -5,26 +5,34 @@ var assert=require('assert');
 var Twitter=require("twitter");
 var config;
 
-function searchReply(MongoClient,config,urlcodeJSON,verified){
+function searchReply(MongoClient,config,urlcodeJSON){
   var tweets;
   //Connect to the db to find the tweets that need to be searched
   MongoClient.connect(config.url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
-      db.close();
-      if(item.length>0){
-        for(i=0;i<item.length;i++){
-          //Select a key round robin style for the tweet to use to search
-          keyNum=i%config.keys.length;
-          //Create twitter client from the key selected above
-          client=new Twitter({
-              consumer_key:config.keys[keyNum].CONSUMER_KEY,
-              consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
-              access_token_key: config.keys[keyNum].ACCESS_KEY,
-              access_token_secret: config.keys[keyNum].ACCESS_SECRET
-          });
-          //Begin searching for replies
-        query(item[i].user.screenName,item[i],client);
-        }
+    var searches=db.collection("searches");
+    var tweets=db.collection("tweets");
+    searches.find().toArray(function(err,item){
+      for(z=0;z<item.length;z++){
+        var verified=item[z].verified.toString();
+        console.log(item[z].verified.toString());
+        tweets.find({"replyFound":false,"searchName":item[z].name,"attempts":{$lt:30}}).toArray(function(err,item){
+          db.close();
+          if(item.length>0){
+            for(i=0;i<item.length;i++){
+              //Select a key round robin style for the tweet to use to search
+              keyNum=i%config.keys.length;
+              //Create twitter client from the key selected above
+              client=new Twitter({
+                  consumer_key:config.keys[keyNum].CONSUMER_KEY,
+                  consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+                  access_token_key: config.keys[keyNum].ACCESS_KEY,
+                  access_token_secret: config.keys[keyNum].ACCESS_SECRET
+              });
+              //Begin searching for replies
+            query(item[i].user.screenName,item[i],client,verified);
+            }
+          }
+        });
       }
     });
   });
@@ -96,7 +104,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
     });
   }
 
-  function query(handle, storedTweets,client) {
+  function query(handle, storedTweets,client,verified) {
     //Create query and encode
     var query = {
         q: "@"+handle,
@@ -229,28 +237,11 @@ function checkHelp(text){
 module.exports=function(MongoClient,config,urlcodeJSON){
   //Search the stored tweets once for replies
 	this.singleReply=function(){
-    //Find the verified handles from the databse then begin search
-    MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("searches");
-        collection.find().toArray(function (err, item) {
-          db.close();
-          for(i=0;i<item.length;i++){
-            searchReply(MongoClient,config,urlcodeJSON,item[i].verified.toString());
-          }
-        });
-    });
+    searchReply(MongoClient,config,urlcodeJSON);
 	}
   //Search the stored tweets every minute for replies
 	this.startReplyIndexing=function(){
     //Find the verified handles from the databse then begin search
-    MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("searches");
-        collection.find().toArray(function (err, item) {
-          db.close();
-          for(i=0;i<item.length;i++){
-            setInterval(function(){searchReply(MongoClient,config,urlcodeJSON,item[i].verified.toString());},60000);
-          }
-        });
-    });
+    setInterval(function(){searchReply(MongoClient,config,urlcodeJSON);},60000);
 	}
 }

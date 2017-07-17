@@ -62,10 +62,10 @@ function reset(MongoClient,config){
         return -1;
       }
       //Reset lastID found
-      searches.updateMany({},{$set:{LastID:[]}},function(err,item){
+      searches.updateMany({},{$set:{lastID:[]}},function(err,item){
         if(err){
           console.log(err);
-          return -1;
+          return -1;mo
         }
         //Remove all tweets
         tweets.remove({},function(err,results){
