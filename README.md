@@ -58,21 +58,27 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 db.createCollection("tweets")
 db.createCollection("constants")
 db.createCollection("users")
+db.createCollection("searches")
 ```
 
 #### 3) User collection in MongoDB
 
-- Only required fields are uname and an md5 hashed password
+- Salt to be implemented
 
 ```javascript
 {uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf",email:"example@whatever.com",name:"Caleb Riggs"}
 ```
-#### 3) Constants collection in MongoDB
+#### 4) Searches collection in MongoDB
+
+- Only required fields are uname and an md5 hashed password
+
+```javascript
+{name : "Sprint", terms : [ "@sprint", "#sprint" ], verified : [ "sprintcare" ], lastID : [ "0", "0" ] }
+```
+#### 5) Constants collection in MongoDB
 - required for tracking searched tweets and verified handles
 
 ```javascript
-{name:"lastID","handle":"SEARCH TERM",value:"0"}
-{name:"verifiedHandles",value:["handle",""]}
 {name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
 ```
 

@@ -84,7 +84,71 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
 
     //Handle post events
 
-    
+    app.post('/newSearch',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var searches=db.collection("searches");
+        searches.insert({"name":req.body.name,"terms":[req.body.term],"verified":[req.body.handle],"lastID":["0"]});
+        db.close();
+        console.log("Added Search");
+        res.send("Succesfull");
+      });
+    });
+
+    app.post('/deleteSearch',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var searches=db.collection("searches");
+        searches.remove({"name":req.body.name},function(err,result){
+          db.close();
+          console.log("Deleted Search");
+          res.send("Succesfull");
+        });
+      });
+    });
+
+    app.post("/updateSearches",isLoggedIn,function(req,res){
+      var data=req.body.data;
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("searches");
+        collection.find().toArray(function(err,item){
+          var change=false;
+          var results=item[data.index];
+          delete results._id;
+          if(data.deleteTerms){
+            change=true;
+            for(i=0;i<data.deleteTerms.length;i++){
+              results.terms.splice(data.deleteTerms[i],1);
+              results.lastID.splice(data.deleteTerms[i],1);
+            }
+          }
+          if(data.newTerms){
+            change=true;
+            for(i=0;i<data.newTerms.length;i++){
+              results.terms.push(data.newTerms[i]);
+              results.lastID.push('0');
+            }
+          }
+          if(data.newHandles){
+            change=true;
+            for(i=0;i<data.newHandles.length;i++){
+              results.verified.push(data.newHandles[i]);
+            }
+          }
+          if(data.deleteHandles){
+            change=true;
+            for(i=0;i<data.deleteHandles.length;i++){
+              results.verified.splice(data.deleteHandles[i],1);
+            }
+          }
+          if(change){
+            collection.update({"name": results.name}, results, function (err, item) {
+              console.log("Updated searches");
+              db.close();
+              res.send("Status: OK");
+            });
+          }
+        });
+      });
+    });
 
     //update user info from general UAC form.
     app.post('/updateUser',isLoggedIn, function(req, res) {

@@ -122,9 +122,68 @@
       <div class="col-md-12"><h3>Below the handles searched and verified responders can be adjusted</h3></div>
     </div>
     <div class="containter" id="searchNames">
+      <div class=row>
+        <div class=col-md-8><select class="form-control input-lg" id="searchSelector"></select></div>
+        <div class=col-md-4><button class="btn btn-success btn-lg" id="newSearchbtn">Add new search object</button></div>
+      </div>
+      <div id="managmentContent" style="display:none;">
+        <h2>Search Terms</h2>
+        <div class="row">
+          <table class="table table-striped" style="text-align:left;">
+            <thead>
+              <tr>
+                <th>Search Term</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr><td><button class="btn btn-primary" onclick="$('#searchTerms').append('<tr><td><input type=text class=\'form-control newTerm\'></td></tr>');">Add Handle</button></td></tr>
+            </tfoot>
+            <tbody id="searchTerms">
 
+            </tbody>
+          </table>
+        </div>
+        <h2>Verified Responders</h2>
+        <div class="row">
+          <table class="table table-striped" style="text-align:left;">
+            <thead>
+              <tr>
+                <th>Responder handle</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr><td><button class="btn btn-primary" onclick="$('#verifiedHandles').append('<tr><td><input type=text class=\'form-control newHandle\'></td></tr>');">Add Handle</button></td></tr>
+            </tfoot>
+            <tbody id="verifiedHandles">
+
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <button class="btn btn-lg btn-danger" onclick="deleteSearch()">Delete Record</button>
+          <button class="btn btn-lg btn-success" onclick="updateSearches()">Update Record</button>
+        </div>
+      </div>
     </div>
+  </div>
 
+  <div id='newSearch' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>Add New Search Object</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;"><form method="post" action="/newSearch">
+        <label>Enter a name:</label><input type="text" class="form-control" placeholder="Expample: Sprint" name="name">
+        <label>Enter One Search term:</label><input type="text" class="form-control" placeholder="Search terms must begin with @ or #" name="term"><br>
+        <label>Enter a verified responder(optional):</label><input type="text" class="form-control" placeholder="Example: sprintcare" name="handle"><br>
+        <button class="btn btn-primary">Add Search</button>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#newSearch').fadeOut()" type=button>Dismiss</button></span>
+      </form></div>
+    </div>
   </div>
 
   <div id='detailedView' class="modal" style="display:none;">
@@ -207,7 +266,7 @@
         <label>New Password</label><input type="password" class="form-control" placeholder="New Password" id="newPass"><br>
         <label>Re-Type New Password</label><input type="password" class="form-control" placeholder="Re-Type New Password" id="newPass2"><br>
         <button class="btn btn-primary" id="passwordForm">Update Info</button>
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').hide()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').fadeOut(500)" type=button>Dismiss</button></span>
       </div>
       <div class="tweetLink">
       <h5><b id="message"></b></h5></div>
