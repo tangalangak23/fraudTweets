@@ -5,6 +5,10 @@
   background-position: center;
   display: none;
 }
+::selection {
+    color: #FFF;
+    background: #000;
+}
 .row{
   text-align: center;
 }
