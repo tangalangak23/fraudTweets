@@ -1,7 +1,7 @@
 var searchesItem=[];
 var id;
 var currentSearch;
-
+setTimeout(updateFooter,250);
 //Initialize DataTable
 var table=$("#tweets").DataTable({
     columns: [
