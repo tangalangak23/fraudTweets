@@ -14,7 +14,8 @@ function searchReply(MongoClient,config,urlcodeJSON){
     searches.find().toArray(function(err,item){
       for(z=0;z<item.length;z++){
         var verified=item[z].verified.toString();
-        tweets.find({"replyFound":false,"searchName":item[z].name,"attempts":{$lt:30}}).toArray(function(err,item){
+        var searchName=item[z].name;
+        tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
           db.close();
           if(item.length>0){
             for(i=0;i<item.length;i++){
@@ -28,7 +29,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
                   access_token_secret: config.keys[keyNum].ACCESS_SECRET
               });
               //Begin searching for replies
-            query(item[i].user.screenName,item[i],client,verified,item[z].name);
+            query(item[i].user.screenName,item[i],client,verified,searchName);
             }
           }
         });
@@ -38,14 +39,14 @@ function searchReply(MongoClient,config,urlcodeJSON){
 
   function updateStatistics(stats,name){
     MongoClient.connect(config.url,function(err,db){
-      var stats=db.collection("statistics");
+      var collection=db.collection("statistics");
       if(stats){
-        stats.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
+        collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
           if(err) console.log(err);
         });
       }
       else{
-        stats.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
+        collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
           if(err) console.log(err);
         });
       }
