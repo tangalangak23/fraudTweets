@@ -56,7 +56,7 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 
 ```javascript
 db.createCollection("tweets")
-db.createCollection("constants")
+db.createCollection("statistics")
 db.createCollection("users")
 db.createCollection("searches")
 ```
@@ -70,16 +70,16 @@ db.createCollection("searches")
 ```
 #### 4) Searches collection in MongoDB
 
-- Only required fields are uname and an md5 hashed password
+- Required for searching tweets and verifying responses
 
 ```javascript
 {name : "Sprint", terms : [ "@sprint", "#sprint" ], verified : [ "sprintcare" ], lastID : [ "0", "0" ] }
 ```
-#### 5) Constants collection in MongoDB
-- required for tracking searched tweets and verified handles
+#### 5) Statistics collection in MongoDB
+- required for monitoring general statistics on the search terms
 
 ```javascript
-{name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
+{name:"Sprint",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
 ```
 
 ## Running
@@ -92,18 +92,18 @@ node index.js
 ```
 - #### Background
 
-For running in the background I recomend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
+For running in the background I recommend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
 ```
 cd WORKING_PATH/fraud/server/
 forever start index.js
 ```
 
 ## Stats
-- #### 1,352 Lines of JavaScript
-- #### 375 Lines of HTML
+- #### 1,360 Lines of JavaScript
+- #### 374 Lines of HTML
 - #### 139 Lines of CSS
 - #### 112 Lines of MD (This totally counts...)
-- #### 1,978 Total Lines Written
+- #### 1,985 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
