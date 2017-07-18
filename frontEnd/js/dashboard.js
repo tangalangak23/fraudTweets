@@ -175,7 +175,7 @@ $(window).resize(function() {
 
 //Managment page code
 $("#searchSelector").change(function(data){
-  $("#managmentContent").fadeOut(250);
+  $("#managmentContent").fadeOut();
   $("#searchTerms").html("");
   $("#verifiedHandles").html("");
   currentSearch=$(this).val();
@@ -189,7 +189,7 @@ $("#searchSelector").change(function(data){
       for(j=0;j<handles.length;j++){
         $("#verifiedHandles").append("<tr><td>"+handles[j]+"</td><td><input type=checkbox class='form-control handles'></td></tr>");
       }
-      $("#managmentContent").fadeIn(250);
+      $("#managmentContent").fadeIn();
       break;
     }
   }
@@ -302,6 +302,8 @@ var routes = Backbone.Router.extend({
     $("#statsLink").removeClass("current");
     $("#searches").hide();
     $("#manageLink").removeClass("current");
+    $("#statView").hide();
+    $("#managmentContent").hide();
     updateFooter();
   },
   stats: function(){
@@ -319,6 +321,8 @@ var routes = Backbone.Router.extend({
     $("#statsLink").addClass("current");
     $("#searches").hide();
     $("#manageLink").removeClass("current");
+    $("#statView").hide();
+    $("#managmentContent").hide();
     updateFooter();
   },
   searches: function(){
@@ -337,6 +341,8 @@ var routes = Backbone.Router.extend({
     $("#statsLink").removeClass("current");
     $("#searches").show();
     $("#manageLink").addClass("current");
+    $("#statView").hide();
+    $("#managmentContent").hide();
     updateFooter();
   }
 });
