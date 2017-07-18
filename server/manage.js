@@ -53,10 +53,10 @@ function reset(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
     if(err) console.log(err);
     var tweets=db.collection("tweets");
-    var constants=db.collection("constants");
+    var stats=db.collection("statistics");
     var searches=db.collection("searches");
     //Reset statistics
-    constants.updateMany({name:"statistics"},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
+    stats.updateMany({},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
       if(err){
         console.log(err);
         return -1;

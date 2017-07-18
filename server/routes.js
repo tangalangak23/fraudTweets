@@ -75,9 +75,15 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
           var result = item[0];
           tweets.aggregate([{$match:{replyFound:true,searchName:req.body.name}},{$group:{_id:"$replyFound",average:{$avg:"$responseTime"}}}]).toArray(function(err,data){
             if(err) console.log(err);
-            result.averageResponseTime=data[0].average;
-            db.close();
-            res.json(result);
+            if(data[0]){
+              result.averageResponseTime=data[0].average;
+              db.close();
+              res.json(result);
+            }
+            else{
+              db.close();
+              res.json(result);
+            }
           });
         });
       });

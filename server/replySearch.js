@@ -14,7 +14,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
     searches.find().toArray(function(err,item){
       for(z=0;z<item.length;z++){
         var verified=item[z].verified.toString();
-        console.log(item[z].verified.toString());
         tweets.find({"replyFound":false,"searchName":item[z].name,"attempts":{$lt:30}}).toArray(function(err,item){
           db.close();
           if(item.length>0){

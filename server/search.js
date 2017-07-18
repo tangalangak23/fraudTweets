@@ -45,9 +45,9 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     }
     //Open db connection,
     MongoClient.connect(config.url,function(err,db){
-      var stats=db.collection("statistics");
+      var statsCollection=db.collection("statistics");
       //Find the current statistics in the database
-      stats.find({"name":name}).toArray(function(err,item){
+      statsCollection.find({"name":name}).toArray(function(err,item){
         var totalSum=0;
         var negativeSum=0;
         var negativeCount=0;
@@ -68,7 +68,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=results.averageNegativeScore+(negativeSum/negativeCount);
           }
-          stats.update({"name":name},results,function (err, item) {
+          statsCollection.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
@@ -79,7 +79,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=(((results.averageNegativeScore*results.negativeCount)+((negativeSum/negativeCount)*negativeCount))/(results.negativeCount+negativeCount));
           }
-          stats.update({"name":name},results,function (err, item) {
+          statsCollection.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
