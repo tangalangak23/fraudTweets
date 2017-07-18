@@ -1,5 +1,6 @@
 var searchesItem=[];
 var id;
+var searchName;
 var currentSearch;
 setTimeout(updateFooter,250);
 //Initialize DataTable
@@ -55,6 +56,7 @@ var table=$("#tweets").DataTable({
 $("#tweets tbody").on("click", "tr", function (event) {
   var name=table.row(this).data().user.screenName;
   id=table.row(this).data()._id;
+  searchName=table.row(this).data().searchName;
   $.post("/getTweetInfo",{"id":id},function(data){
     if(data.replyFound){
       $("#reset").hide();
@@ -91,7 +93,7 @@ $("#tweets tbody").on("click", "tr", function (event) {
 });
 //Delete the record from the db
 $("#delete").click(function(){
-  $.post("/deleteRecord",{"id":id});
+  $.post("/deleteRecord",{"id":id,"name":searchName});
   location.reload();
 });
 //Reset the attempted searches
@@ -238,6 +240,54 @@ function deleteSearch(){
   });
 }
 
+//Statistics code
+$("#statSelector").change(function(data){
+  if($(this).val()=="Select a search object"){
+    $("#statView").fadeOut()
+    return -1;
+  }
+  $.post("/getStats",{"name":$(this).val()},function(data){
+    //Check the score and select the appropriate color
+    if(data.averageScore>=2){
+      totalColor="#43A047";
+    }
+    else if(data.averageScore>=0){
+      totalColor="#1E88E5";
+    }
+    else if(data.averageScore>=-2){
+      totalColor="#FDD835";
+    }
+    else{
+      totalColor="#E53935";
+    }
+    if(data.averageNegativeScore>=2){
+      negativeColor="#43A047";
+    }
+    else if(data.averageNegativeScore>=0){
+      negativeColor="#1E88E5";
+    }
+    else if(data.averageNegativeScore>=-2){
+      negativeColor="#FDD835";
+    }
+    else{
+      negativeColor="#E53935";
+    }
+    //Set statistic values
+    $("#totalAverage").text((data.averageScore).toFixed(2)).css('color', totalColor);
+    $("#negativeAverage").text((data.averageNegativeScore).toFixed(2)).css('color', negativeColor);
+    $("#totalCount").text(data.count);
+    $("#negativeCount").text(data.negativeCount);
+    //Calculate the total replies found and the percents
+    var total=data.validRepliesFound+data.fraudulentRepliesFound;
+    var percent=+(data.validRepliesFound/total*100).toFixed(2);
+    $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
+    $("#validResponses").text("%"+percent);
+    $("#fraudResponses").text("%"+(100-percent).toFixed(2));
+    $("#responseTime").text((data.averageResponseTime).toFixed(2)+" min.");
+    $("#statView").fadeIn()
+  });
+});
+
 var routes = Backbone.Router.extend({
   routes: {
     '': 'home',
@@ -255,45 +305,14 @@ var routes = Backbone.Router.extend({
     updateFooter();
   },
   stats: function(){
-    $.get("/getStats",function(data){
-      //Check the score and select the appropriate color
-      if(data.averageScore>=2){
-        totalColor="#43A047";
+    $.get("/getSearches",function(data){
+      $("#statSelector").html("");
+      $("#statSelector").append("<option>Select a search object</option>");
+      for(i=0;i<data.length;i++){
+        $("#statSelector").append("<option>"+data[i].name+"</option>");
       }
-      else if(data.averageScore>=0){
-        totalColor="#1E88E5";
-      }
-      else if(data.averageScore>=-2){
-        totalColor="#FDD835";
-      }
-      else{
-        totalColor="#E53935";
-      }
-      if(data.averageNegativeScore>=2){
-        negativeColor="#43A047";
-      }
-      else if(data.averageNegativeScore>=0){
-        negativeColor="#1E88E5";
-      }
-      else if(data.averageNegativeScore>=-2){
-        negativeColor="#FDD835";
-      }
-      else{
-        negativeColor="#E53935";
-      }
-      //Set statistic values
-      $("#totalAverage").text((data.averageScore).toFixed(2)).css('color', totalColor);
-      $("#negativeAverage").text((data.averageNegativeScore).toFixed(2)).css('color', negativeColor);
-      $("#totalCount").text(data.count);
-      $("#negativeCount").text(data.negativeCount);
-      //Calculate the total replies found and the percents
-      var total=data.validRepliesFound+data.fraudulentRepliesFound;
-      var percent=+(data.validRepliesFound/total*100).toFixed(2);
-      $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
-      $("#validResponses").text("%"+percent);
-      $("#fraudResponses").text("%"+(100-percent).toFixed(2));
-      $("#responseTime").text((data.averageResponseTime).toFixed(2)+" min.");
     });
+
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").show();

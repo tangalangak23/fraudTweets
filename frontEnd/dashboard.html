@@ -61,55 +61,54 @@
 
   <div class="container" id="statistics" style="display:none;">
     <div class="row">
-      <div class="col-md-12"><h1>Statistics</h1></div>
+      <div class="col-md-4"><h1>Statistics for</h1></div><div class="col-md-8" style="padding-top:1.5%;"><select class="form-control input-lg" id="statSelector"></select></div>
     </div>
-    <div class="row">
-      <div class="col-md-12"><h3>Below are some statistics from the observed data</h3></div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-6">
-        <h1>Average Total Score<br>
-          <span id="totalAverage"></span>
-        </h1>
+    <div id="statView" style="display:none;">
+      <div class="row stats">
+        <div class="col-md-6">
+          <h1>Average Total Score<br>
+            <span id="totalAverage"></span>
+          </h1>
+        </div>
+        <div class="col-md-6">
+          <h1>Average Negative Score<br>
+            <span id="negativeAverage"></span>
+          </h1>
+        </div>
       </div>
-      <div class="col-md-6">
-        <h1>Average Negative Score<br>
-          <span id="negativeAverage"></span>
-        </h1>
+      <div class="row stats">
+        <div class="col-md-4">
+          <h1>Total Tweets<br>
+            <span id="totalCount"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Negative Tweets<br>
+            <span id="negativeCount"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Avg. Response Time<br>
+            <span id="responseTime"></span>
+          </h1>
+        </div>
       </div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-4">
-        <h1>Total Tweets<br>
-          <span id="totalCount"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Negative Tweets<br>
-          <span id="negativeCount"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Avg. Response Time<br>
-          <span id="responseTime"></span>
-        </h1>
-      </div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-4">
-        <h1>Responses Found<br>
-          <span id="responsesFound"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Percent Valid<br>
-          <span id="validResponses"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Potential Fraud<br>
-          <span id="fraudResponses"></span>
-        </h1>
+      <div class="row stats">
+        <div class="col-md-4">
+          <h1>Responses Found<br>
+            <span id="responsesFound"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Percent Valid<br>
+            <span id="validResponses"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Potential Fraud<br>
+            <span id="fraudResponses"></span>
+          </h1>
+        </div>
       </div>
     </div>
   </div>

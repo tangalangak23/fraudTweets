@@ -29,7 +29,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
                   access_token_secret: config.keys[keyNum].ACCESS_SECRET
               });
               //Begin searching for replies
-            query(item[i].user.screenName,item[i],client,verified);
+            query(item[i].user.screenName,item[i],client,verified,item[z].name);
             }
           }
         });
@@ -37,25 +37,20 @@ function searchReply(MongoClient,config,urlcodeJSON){
     });
   });
 
-  function updateStatistics(stats){
+  function updateStatistics(stats,name){
     MongoClient.connect(config.url,function(err,db){
-      var constants=db.collection("constants");
-      constants.find({"name":"statistics"}).toArray(function(err,item){
-        results=item[0];
-        if(stats){
-          results.validRepliesFound+=1;
-          constants.update({"name":"statistics"},results,function (err, item) {
-            if(err) console.log(err);
-          });
-        }
-        else{
-          results.fraudulentRepliesFound+=1
-          constants.update({"name":"statistics"},results,function (err, item) {
-            if(err) console.log(err);
-          });
-        }
-        db.close();
-      });
+      var stats=db.collection("statistics");
+      if(stats){
+        stats.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
+          if(err) console.log(err);
+        });
+      }
+      else{
+        stats.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
+          if(err) console.log(err);
+        });
+      }
+      db.close();
     });
   }
 
@@ -104,7 +99,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     });
   }
 
-  function query(handle, storedTweets,client,verified) {
+  function query(handle, storedTweets,client,verified,searchName) {
     //Create query and encode
     var query = {
         q: "@"+handle,
@@ -158,7 +153,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
-                    updateStatistics(true);
+                    updateStatistics(true,searchName);
                     console.log("Successfully Updated");
                   });
                 db.close();
@@ -168,7 +163,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
               else {
                 console.log("Corrosponding tweet found and not verified\n");
                 //Update the replies found statistic
-                updateStatistics(false);
+                updateStatistics(false,searchName);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user

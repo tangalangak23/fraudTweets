@@ -39,15 +39,15 @@ function searchTweets(MongoClient,config,urlcodeJSON){
   });
 
   //Update the general statistics
-  function updateStatistics(stats){
+  function updateStatistics(stats,name){
     if(stats.length==0){
       return -1;
     }
     //Open db connection,
     MongoClient.connect(config.url,function(err,db){
-      var constants=db.collection("constants");
+      var stats=db.collection("statistics");
       //Find the current statistics in the database
-      constants.find({"name":"statistics"}).toArray(function(err,item){
+      stats.find({"name":name}).toArray(function(err,item){
         var totalSum=0;
         var negativeSum=0;
         var negativeCount=0;
@@ -68,7 +68,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=results.averageNegativeScore+(negativeSum/negativeCount);
           }
-          constants.update({"name":"statistics"},results,function (err, item) {
+          stats.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
@@ -79,7 +79,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=(((results.averageNegativeScore*results.negativeCount)+((negativeSum/negativeCount)*negativeCount))/(results.negativeCount+negativeCount));
           }
-          constants.update({"name":"statistics"},results,function (err, item) {
+          stats.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
@@ -207,7 +207,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           }
         }
         //Update general statistics and the lastID found in the db
-        updateStatistics(scores);
+        updateStatistics(scores,searchName);
         var searches=db.collection("searches");
         lastID[index]=tweets.statuses[0].id_str;
         searches.update({"name":searchName},{$set:{"lastID":lastID}});

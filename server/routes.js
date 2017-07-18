@@ -66,13 +66,14 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
-    app.get('/getStats',isLoggedIn, function(req, res) {
+    //Handle post events
+    app.post('/getStats',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
-        var collection=db.collection("constants");
+        var stats=db.collection("statistics");
         var tweets=db.collection("tweets");
-        collection.find({name:"statistics"}).toArray(function(err,item){
+        stats.find({name:req.body.name}).toArray(function(err,item){
           var result = item[0];
-          tweets.aggregate([{$match:{replyFound:true}},{$group:{_id:"$replyFound",average:{$avg:"$responseTime"}}}]).toArray(function(err,data){
+          tweets.aggregate([{$match:{replyFound:true,searchName:req.body.name}},{$group:{_id:"$replyFound",average:{$avg:"$responseTime"}}}]).toArray(function(err,data){
             if(err) console.log(err);
             result.averageResponseTime=data[0].average;
             db.close();
@@ -81,13 +82,13 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         });
       });
     });
-
-    //Handle post events
     //Add new search object
     app.post('/newSearch',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var searches=db.collection("searches");
+        var stats=db.collection("statistics");
         searches.insert({"name":req.body.name,"terms":[req.body.term],"verified":[req.body.handle],"lastID":["0"]});
+        stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0})
         db.close();
         console.log("Added Search");
         res.send("Succesfull");
@@ -97,10 +98,13 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/deleteSearch',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var searches=db.collection("searches");
+        var stats=db.collection("statistics");
         searches.remove({"name":req.body.name},function(err,result){
-          db.close();
-          console.log("Deleted Search");
-          res.send("Succesfull");
+          stats.remove({"name":req.body.name},function(err,result){
+            db.close();
+            console.log("Deleted Search");
+            res.send("Succesfull");
+          });
         });
       });
     });
@@ -230,10 +234,11 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     app.post('/deleteRecord',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
-        var stats=db.collection("constants")
+        var stats=db.collection("statistics")
         tweets.remove({"_id":req.body.id},function(err,result){
-          stats.findOneAndUpdate({name:"statistics"},{$inc:{"negativeCount":-1}},function(err,data){
+          stats.findOneAndUpdate({name:req.body.name},{$inc:{"negativeCount":-1}},function(err,data){
             if(err) console.log(err);
+            console.log("Deleted Record");
           })
           db.close();
           return 0;
