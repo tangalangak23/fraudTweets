@@ -186,7 +186,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     });
 
     //Add new user
-    app.post('/updateUser',isLoggedIn, function(req, res) {
+    app.post('/newUser',isLoggedIn, function(req, res) {
       //Get post info
       var name=req.body.name;
       var uname=req.body.uname;
@@ -195,8 +195,9 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
 
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("users");
-        //update user with new information
+        //Add the user to the DB
         collection.insert({"name":name,"uname":uname,"email":email,"password":password});
+        console.log("Added user");
         db.close();
       });
       res.redirect("/home");
