@@ -164,22 +164,39 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
-    //update user info from general UAC form.
+    //Update user info from general UAC form.
     app.post('/updateUser',isLoggedIn, function(req, res) {
-      //get post info
+      //Get post info
       req.user.name=req.body.name;
       req.user.uname=req.body.uname;
       req.user.email=req.body.email;
-      //find user by mongo ID in passport data
+      //Find user by mongo ID in passport data
       var id=new mongo.ObjectID(req.user._id);
       temp=req.user;
       delete temp._id;
       MongoClient.connect(url,function(err,db){
         var collection=db.collection("users");
-        //update user with new information
+        //Update user with new information
         collection.update({_id:id },temp, function (err, item) {
           console.log("Updated user info");
         });
+        db.close();
+      });
+      res.redirect("/home");
+    });
+
+    //Add new user
+    app.post('/updateUser',isLoggedIn, function(req, res) {
+      //Get post info
+      var name=req.body.name;
+      var uname=req.body.uname;
+      var email=req.body.email;
+      var password=md5(req.body.password);
+
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("users");
+        //update user with new information
+        collection.insert({"name":name,"uname":uname,"email":email,"password":password});
         db.close();
       });
       res.redirect("/home");

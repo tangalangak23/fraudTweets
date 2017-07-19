@@ -117,6 +117,9 @@ window.onclick = function (event) {
     else if (event.target == $("#newSearch")[0] ){
         $("#newSearch").fadeOut();
     }
+    else if (event.target == $("#addUser")[0] ){
+        $("#addUser").fadeOut();
+    }
 }
 //Get user info to show in UAC panel
 $("#generalUAC").click(function(){
@@ -133,6 +136,9 @@ $("#changePassword").click(function(){
 });
 $("#newSearchbtn").click(function(){
   $("#newSearch").fadeIn();
+});
+$("#newUser").click(function(){
+  $("#addUser").fadeIn();
 });
 //Validate input from password form and post to /updatePassword
 $('#passwordForm').click(function(ev) {

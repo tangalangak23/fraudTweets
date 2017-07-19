@@ -254,6 +254,24 @@
     </div>
   </div>
 
+  <div id='addUser' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>New User</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;"><form method="post" action="/newUser">
+        <label>Name</label><input type="text" class="form-control" value="" placeholder="Ex. John Smith" name="name"><br>
+        <label>User Name</label><input type="text" class="form-control" placeholder="The user will use this to login" name="uname"><br>
+        <label>E-mail</label><input type="email" class="form-control" placeholder="Ex. fraud@tweets.com" name="email"><br>
+        <label>New Password</label><input type="password" class="form-control" placeholder="Password for login" name="password"><br>
+        <input type="submit" class="btn btn-primary" value="Update Info">
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut()" type=button>Dismiss</button></span>
+      </form></div>
+    </div>
+  </div>
+
   <div id='passwordChange' class="modal" style="display:none;">
     <div class="container inner">
       <h2>
