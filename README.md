@@ -1,5 +1,4 @@
 # ! This is a development build, use at your own risk !
-
 # Fraud Detection for twitter
 The purpose of this program is to detect fraud on twitter. It does this by targeting a specific companies handle (for example @sprint). It then will read any twitter user that complains to @sprint and begins monitoring for people responding to that tweet that are offering help. If they are not an official supported account then they are marked as fraudulent.
 
@@ -29,7 +28,8 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 - MongoDB
 
 ## Setup
-##### 1) Setup config file like follows
+#### Install MongoDB
+#### Setup config file like follows
 - server/config/authorization.json
 
 ```javascript
@@ -52,7 +52,18 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
   ]
 }
 ```
-#### 2) Create MongoDB collections
+## Install
+### Automated
+#### 1) Run install.js
+```
+cd WORKING_PATH/
+node install.js
+```
+#### 2) Start using prefered run method
+#### 3) Login with default account uname=ftweets password=superSecretPassword
+####
+### Manual
+#### 1) Create MongoDB collections
 
 ```javascript
 db.createCollection("tweets")
@@ -61,21 +72,21 @@ db.createCollection("users")
 db.createCollection("searches")
 ```
 
-#### 3) User collection in MongoDB
+#### 2) User collection in MongoDB
 
 - Salt to be implemented
 
 ```javascript
 {uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf",email:"example@whatever.com",name:"Caleb Riggs"}
 ```
-#### 4) Searches collection in MongoDB
+#### 3) Searches collection in MongoDB
 
 - Required for searching tweets and verifying responses
 
 ```javascript
 {name : "Sprint", terms : [ "@sprint", "#sprint" ], verified : [ "sprintcare" ], lastID : [ "0", "0" ] }
 ```
-#### 5) Statistics collection in MongoDB
+#### 4) Statistics collection in MongoDB
 - required for monitoring general statistics on the search terms
 
 ```javascript
@@ -99,11 +110,11 @@ forever start index.js
 ```
 
 ## Stats
-- #### 1,371 Lines of JavaScript
-- #### 374 Lines of HTML
+- #### 1,452 Lines of JavaScript
+- #### 393 Lines of HTML
 - #### 143 Lines of CSS
-- #### 112 Lines of MD (This totally counts...)
-- #### 2,000 Total Lines Written
+- #### 123 Lines of MD (This totally counts...)
+- #### 2,111 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten

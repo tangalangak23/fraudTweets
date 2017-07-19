@@ -97,7 +97,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0})
         db.close();
         console.log("Added Search");
-        res.send("Succesfull");
+        res.redirect("/home");
       });
     });
     //Remove search object
