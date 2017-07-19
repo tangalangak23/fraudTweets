@@ -13,7 +13,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     var tweets=db.collection("tweets");
     searches.find().toArray(function(err,item){
       for(z=0;z<item.length;z++){
-        if(item[z].verified.length==0){
+        if(item[z].verified[0]==""){
           return -1;
         }
         var verified=item[z].verified.toString();
