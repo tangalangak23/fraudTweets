@@ -90,15 +90,21 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     });
     //Add new search object
     app.post('/newSearch',isLoggedIn, function(req, res) {
-      MongoClient.connect(url,function(err,db){
-        var searches=db.collection("searches");
-        var stats=db.collection("statistics");
-        searches.insert({"name":req.body.name,"terms":[req.body.term],"verified":[req.body.handle],"lastID":["0"]});
-        stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0})
-        db.close();
-        console.log("Added Search");
-        res.redirect("/home");
-      });
+      if(!req.body.term.includes("@")||!req.body.term.includes("#")){
+        res.send("Invalid input: Search term must include @ or #")
+      }
+      else{
+        MongoClient.connect(url,function(err,db){
+          var searches=db.collection("searches");
+          var stats=db.collection("statistics");
+          searches.insert({"name":req.body.name,"terms":[req.body.term],"verified":[req.body.handle],"lastID":["0"]});
+          stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0})
+          db.close();
+          console.log("Added Search");
+          //TODO
+          res.send("Success");
+        });
+      }
     });
     //Remove search object
     app.post('/deleteSearch',isLoggedIn, function(req, res) {
@@ -182,7 +188,8 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         });
         db.close();
       });
-      res.redirect("/home");
+      //TODO
+      res.send("Success");
     });
 
     //Add new user
@@ -200,7 +207,8 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         console.log("Added user");
         db.close();
       });
-      res.redirect("/home");
+      //TODO
+      res.redirect("Success");
     });
 
     //update user password from update password form
@@ -222,10 +230,10 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
           });
           db.close();
         });
-        res.redirect("/home");
+        res.send("Success: Password Updated");
       }
       else{
-        res.redirect("/home");
+        res.send("Failure: Old password is invalid");
       }
     });
 

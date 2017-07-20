@@ -106,19 +106,23 @@ $("#reset").click(function(){
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
     if (event.target == $("#detailedView")[0] ){
-        $("#detailedView").fadeOut();
+      $("#detailedView").fadeOut();
     }
     else if (event.target == $("#generalAccount")[0] ){
-        $("#generalAccount").fadeOut();
+      setMessage("");
+      $("#generalAccount").fadeOut();
     }
     else if (event.target == $("#passwordChange")[0] ){
-        $("#passwordChange").fadeOut();
+      resetPass();
+      $("#passwordChange").fadeOut();
     }
     else if (event.target == $("#newSearch")[0] ){
-        $("#newSearch").fadeOut();
+      setMessage("");
+      $("#newSearch").fadeOut();
     }
     else if (event.target == $("#addUser")[0] ){
-        $("#addUser").fadeOut();
+      setMessage("");
+      $("#addUser").fadeOut();
     }
 }
 //Get user info to show in UAC panel
@@ -146,16 +150,35 @@ $('#passwordForm').click(function(ev) {
   newPass=$("#newPass").val();
   newPass2=$("#newPass2").val();
   if(current==newPass){
-    $("#message").text("New password Matches old password");
+    setMessage("New password Matches old password");
+  }
+  else if(newPass.includes("\"") || newPass.includes("\'")){
+    setMessage("New password contains invalid characters");
   }
   else if(newPass!=newPass2){
-    $("#message").text("New passwords do not match");
+    setMessage("New passwords do not match");
   }
   else{
-    $("#message").text("Updating Password");
-    $.post("/updatePassword",{currentPassword:current,newPassword:newPass});
+    setMessage("Updating Password");
+    $.post("/updatePassword",{currentPassword:current,newPassword:newPass},function(data){
+      if(data.includes("Success")){
+        $("#current").val("");
+        $("#newPass").val("");
+        $("#newPass2").val("");
+        setMessage(data);
+      }
+      else{
+        setMessage(data);
+      }
+    });
   }
 });
+function resetPass(){
+  $("#current").val("");
+  $("#newPass").val("");
+  $("#newPass2").val("");
+  setMessage("");
+}
 
 
 //Footer code
@@ -293,6 +316,36 @@ $("#statSelector").change(function(data){
     $("#statView").fadeIn()
   });
 });
+
+function setMessage(message){
+  $(".message").each(function(){
+    $(this).text(message);
+  });
+}
+
+$("form").submit(function(e){
+    var form = $(this);
+    $.ajax({
+         url   : form.attr('action'),
+         type  : form.attr('method'),
+         data  : form.serialize(), // data to be submitted
+         success: function(data){
+             if(data.includes("Success")){
+               location.reload();
+             }
+             else if(data.includes("Invalid")){
+               setMessage(data);
+             }
+             else{
+               alert("Unknown error occured");
+             }
+         },
+         error: function(data){
+           alert("Unknown error occured");
+         }
+    });
+    return false;
+ });
 
 var routes = Backbone.Router.extend({
   routes: {

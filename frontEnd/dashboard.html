@@ -176,13 +176,15 @@
           <span>Add New Search Object</span>
         </p>
       </h2>
-      <div class="form-group" style="text-align:left;"><form method="post" action="/newSearch">
+      <div class="form-group" style="text-align:left;"><form id="newSearchForm" method="post" action="/newSearch">
         <label>Enter a name:</label><input type="text" class="form-control" placeholder="Expample: Sprint" name="name">
         <label>Enter One Search term:</label><input type="text" class="form-control" placeholder="Search terms must begin with @ or #" name="term"><br>
         <label>Enter a verified responder(optional):</label><input type="text" class="form-control" placeholder="Example: sprintcare" name="handle"><br>
         <button class="btn btn-primary">Add Search</button>
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#newSearch').fadeOut()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#newSearch').fadeOut();setMessage("");" type=button>Dismiss</button></span>
       </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
 
@@ -249,8 +251,10 @@
         <label>User Name</label><input type="text" id="uName" class="form-control" name="uname"><br>
         <label>E-mail</label><input type="text" id="email" class="form-control" name="email"><br>
         <input type="submit" class="btn btn-primary" value="Update Info">
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#generalAccount').hide()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#generalAccount').hide();setMessage("");" type=button>Dismiss</button></span>
       </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
 
@@ -267,8 +271,10 @@
         <label>E-mail</label><input type="email" class="form-control" placeholder="Ex. fraud@tweets.com" name="email"><br>
         <label>New Password</label><input type="password" class="form-control" placeholder="Password for login" name="password"><br>
         <input type="submit" class="btn btn-primary" value="Add User">
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut();setMessage("");" type=button>Dismiss</button></span>
       </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
 
@@ -284,10 +290,10 @@
         <label>New Password</label><input type="password" class="form-control" placeholder="New Password" id="newPass"><br>
         <label>Re-Type New Password</label><input type="password" class="form-control" placeholder="Re-Type New Password" id="newPass2"><br>
         <button class="btn btn-primary" id="passwordForm">Update Info</button>
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').fadeOut(500)" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').fadeOut(500);resetPass();" type=button>Dismiss</button></span>
       </div>
       <div class="tweetLink">
-      <h5><b id="message"></b></h5></div>
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
   <footer class="footer" style="text-align:left;">
