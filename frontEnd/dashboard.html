@@ -280,7 +280,7 @@
     </div>
   </div>
 
-  <div id='manageUsers' class="modal" style="display:none;">
+  <div id='manageUsers' class="modal" style="display:none;z-index:9;">
     <div class="container inner">
       <h2>
         <p style="text-align:left;">
@@ -300,6 +300,7 @@
           </tbody>
         </table>
       </div>
+      <button class="btn btn-primary" onclick="$('#addUser').fadeIn();">Add User</button>
       <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#manageUsers').fadeOut();setMessage('');" type=button>Dismiss</button></span>
       <div class="tweetLink">
       <h5><b class="message"></b></h5></div>
