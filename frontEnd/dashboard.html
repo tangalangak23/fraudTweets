@@ -27,7 +27,9 @@
           <ul class="dropdown-menu dropdown-menu-right">
             <li><a id="generalUAC">General Account Settings</a></li>
             <li><a id="changePassword">Change Password</a></li>
+            <li class="divider"></li>
             <li><a id="newUser">Add User</a></li>
+            <li><a id="userManage">Manage Users</a></li>
             <li class="divider"></li>
             <li><a href="/logout">Logout</a></li>
           </ul>
@@ -271,8 +273,34 @@
         <label>E-mail</label><input type="email" class="form-control" placeholder="Ex. fraud@tweets.com" name="email"><br>
         <label>New Password</label><input type="password" class="form-control" placeholder="Password for login" name="password"><br>
         <input type="submit" class="btn btn-primary" value="Add User">
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut();setMessage("");" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut();setMessage('');" type=button>Dismiss</button></span>
       </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
+    </div>
+  </div>
+
+  <div id='manageUsers' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>Manage User</span>
+        </p>
+      </h2>
+      <div class="form-group users" style="text-align:left;">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>User Name</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody id="users">
+          </tbody>
+        </table>
+      </div>
+      <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#manageUsers').fadeOut();setMessage('');" type=button>Dismiss</button></span>
       <div class="tweetLink">
       <h5><b class="message"></b></h5></div>
     </div>

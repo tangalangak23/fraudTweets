@@ -124,6 +124,10 @@ window.onclick = function (event) {
       setMessage("");
       $("#addUser").fadeOut();
     }
+    else if (event.target == $("#manageUsers")[0] ){
+      setMessage("");
+      $("#manageUsers").fadeOut();
+    }
 }
 //Get user info to show in UAC panel
 $("#generalUAC").click(function(){
@@ -143,6 +147,19 @@ $("#newSearchbtn").click(function(){
 });
 $("#newUser").click(function(){
   $("#addUser").fadeIn();
+});
+$("#userManage").click(function(){
+  $.get("/getUsers",function(data){
+    $("#users").html("");
+    var temp;
+    for(i=0;i<data.length;i++){
+      temp="<tr><td>";
+      temp+=data[i].name+"</td><td>"+data[i].uname+"</td><td>";
+      temp+="<button class=\"btn btn-danger\" onclick=\"$.post('/deleteUser',{id:'"+data[i]._id+"'},function(data){formSuccess(data)})\">X</button</form></tr>";
+      $("#users").append(temp);
+    }
+  })
+  $("#manageUsers").fadeIn();
 });
 //Validate input from password form and post to /updatePassword
 $('#passwordForm').click(function(ev) {
@@ -330,15 +347,7 @@ $("form").submit(function(e){
          type  : form.attr('method'),
          data  : form.serialize(), // data to be submitted
          success: function(data){
-             if(data.includes("Success")){
-               location.reload();
-             }
-             else if(data.includes("Invalid")){
-               setMessage(data);
-             }
-             else{
-               alert("Unknown error occured");
-             }
+           formSuccess(data);
          },
          error: function(data){
            alert("Unknown error occured");
@@ -346,6 +355,18 @@ $("form").submit(function(e){
     });
     return false;
  });
+
+function formSuccess(data){
+  if(data.includes("Success")){
+    location.reload();
+  }
+  else if(data.includes("Invalid")){
+    setMessage(data);
+  }
+  else{
+    alert("Unknown error occured");
+  }
+}
 
 var routes = Backbone.Router.extend({
   routes: {

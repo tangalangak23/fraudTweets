@@ -38,7 +38,16 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       });
     });
 
-    //handle rest requests to get data from mongoDB
+    app.get('/getUsers',isLoggedIn, function(req, res) {
+      MongoClient.connect(url,function(err,db){
+        var users=db.collection("users");
+        users.find().project({_id:1,name:1,uname:1}).toArray(function(err,item){
+          db.close();
+          res.json(item);
+        });
+      });
+    });
+
     app.get('/getTimeline',isLoggedIn, function(req, res) {
       MongoClient.connect(url,function(err,db){
         var tweets=db.collection("tweets");
@@ -191,6 +200,21 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       //TODO
       res.send("Success");
     });
+    //Delete user
+    app.post('/deleteUser',isLoggedIn, function(req, res) {
+      //Find user by mongo ID in passport data
+      var id=new mongo.ObjectID(req.body.id);
+      MongoClient.connect(url,function(err,db){
+        var collection=db.collection("users");
+        //Update user with new information
+        collection.remove({_id:id },function (err, item) {
+          console.log("Deleted user");
+        });
+        db.close();
+      });
+      //TODO
+      res.send("Success");
+    });
 
     //Add new user
     app.post('/newUser',isLoggedIn, function(req, res) {
@@ -208,7 +232,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         db.close();
       });
       //TODO
-      res.redirect("Success");
+      res.send("Success");
     });
 
     //update user password from update password form
