@@ -56,7 +56,6 @@ function modifySearch(data){
   for(i=0;i<temp.length;i++){
     filter.splice(temp[i],1);
   }
-  console.log(filter);
   temp=tweets.filter(function(n){return filter.toString().includes(n.handle)});
   table.clear();
   table.rows.add(temp).draw();
