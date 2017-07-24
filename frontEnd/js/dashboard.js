@@ -1,7 +1,9 @@
 var searchesItem=[];
+var searchTerms=[];
 var id;
 var searchName;
 var currentSearch;
+var tweets;
 setTimeout(updateFooter,250);
 //Initialize DataTable
 var table=$("#tweets").DataTable({
@@ -15,26 +17,12 @@ var table=$("#tweets").DataTable({
         {data: "fraud"}
     ],
     "columnDefs": [
-        {
-          "targets": [ 3 ],
-          "searchable": false
-        },
-        {
-          "targets": [ 1 ],
-          "orderable": false
-        },
-        {
-          "targets": [ 0 ],
-          "visible": false
-        }
+        {"targets": [ 3 ],"searchable": false},
+        {"targets": [ 1 ],"orderable": false},
+        {"targets": [ 0 ],"visible": false}
     ],
     "order": [[ 0, "desc" ]],
     "searching": true,
-    ajax: {
-        url: "/getTweets",
-        dataSrc: "",
-        type: "GET",
-    },
     "fnCreatedRow": function (nRow, aData, iDisplayIndex) {
       //When a row is created check the fraud score and color appropriately
       var value = aData.fraud;
@@ -52,6 +40,28 @@ var table=$("#tweets").DataTable({
       }
     }
 });
+$.get("/getTweets",function(data){
+  tweets=data;
+  table.rows.add(tweets).draw();
+});
+function modifySearch(data){
+  var filter=searchTerms.slice();
+  var temp=[];
+  $(".searchControl").each(function(index,item){
+    if(!$(item).is(":checked")){
+      temp.push($(item).val());
+    }
+  });
+  temp.reverse();
+  for(i=0;i<temp.length;i++){
+    filter.splice(temp[i],1);
+  }
+  console.log(filter);
+  temp=tweets.filter(function(n){return filter.toString().includes(n.handle)});
+  table.clear();
+  table.rows.add(temp).draw();
+  updateFooter();
+}
 //When a table row is clicked get the relevant info and display it in the modals
 $("#tweets tbody").on("click", "tr", function (event) {
   var name=table.row(this).data().user.screenName;
@@ -375,6 +385,14 @@ var routes = Backbone.Router.extend({
     'searchManage': 'searches'
   },
   home: function(){
+    $.get("/getSearches",function(data){
+      $("#tableOptions").html("");
+      for(i=0;i<data.length;i++){
+        $("#tableOptions").append("<label class='checkbox-inline'><input type='checkbox' class='searchControl' onclick='modifySearch()' checked=true value="+i+">"+data[i].name+"</label>");
+        searchTerms.push(data[i].terms);
+      }
+      updateFooter();
+    });
     $("#tweets").attr("style","");
     $("#dashboard").show();
     $("#homeLink").addClass("current");
@@ -384,7 +402,6 @@ var routes = Backbone.Router.extend({
     $("#manageLink").removeClass("current");
     $("#statView").hide();
     $("#managmentContent").hide();
-    updateFooter();
   },
   stats: function(){
     $.get("/getSearches",function(data){
@@ -394,7 +411,7 @@ var routes = Backbone.Router.extend({
         $("#statSelector").append("<option>"+data[i].name+"</option>");
       }
     });
-
+    $("#tableOptions").html("");
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").show();
@@ -411,10 +428,11 @@ var routes = Backbone.Router.extend({
       searchesItem=data;
       $("#searchSelector").html("");
       $("#searchSelector").append("<option>Select a search object</option>");
-      for(i=0;i<data.length;i++){
+      for(i=0;i<searchesItem.length;i++){
         $("#searchSelector").append("<option>"+data[i].name+"</option>");
       }
     });
+    $("#tableOptions").html("");
     $("#dashboard").hide();
     $("#homeLink").removeClass("current");
     $("#statistics").hide();

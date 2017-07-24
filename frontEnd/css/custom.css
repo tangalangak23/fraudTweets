@@ -57,6 +57,8 @@
 .current{
   background-color: #8e8e8e;
   border-style: solid;
+  border-top-left-radius:.25em;
+  border-top-right-radius:.25em;
   border-width: .5px;
   border-bottom: 0px;
 }
