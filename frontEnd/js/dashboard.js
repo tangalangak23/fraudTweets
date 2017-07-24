@@ -386,11 +386,13 @@ var routes = Backbone.Router.extend({
   home: function(){
     $.get("/getSearches",function(data){
       $("#tableOptions").html("");
-      for(i=0;i<data.length;i++){
-        $("#tableOptions").append("<label class='checkbox-inline'><input type='checkbox' class='searchControl' onclick='modifySearch()' checked=true value="+i+">"+data[i].name+"</label>");
-        searchTerms.push(data[i].terms);
+      if(data.length!=1){
+        for(i=0;i<data.length;i++){
+          $("#tableOptions").append("<label class='checkbox-inline'><input type='checkbox' class='searchControl' onclick='modifySearch()' checked=true value="+i+">"+data[i].name+"</label>");
+          searchTerms.push(data[i].terms);
+        }
+        updateFooter();
       }
-      updateFooter();
     });
     $("#tweets").attr("style","");
     $("#dashboard").show();
