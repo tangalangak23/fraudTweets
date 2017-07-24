@@ -99,7 +99,6 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
     });
     //Add new search object
     app.post('/newSearch',isLoggedIn, function(req, res) {
-      console.log(!req.body.term.includes("@"));
       if(!(req.body.term.includes("@")||req.body.term.includes("#"))){
         res.send("Invalid input: Search term must include @ or #")
       }
