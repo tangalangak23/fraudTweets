@@ -290,9 +290,11 @@ function updateSearches(){
 }
 
 function deleteSearch(){
-  $.post("/deleteSearch",{"name":currentSearch},function(){
-    location.reload();
-  });
+  if(window.confirm("Are you sure you want to delete this search and all related tweets and statistics?")){
+    $.post("/deleteSearch",{"name":currentSearch},function(){
+      location.reload();
+    });
+  }
 }
 
 //Statistics code
