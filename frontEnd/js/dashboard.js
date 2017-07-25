@@ -406,10 +406,19 @@ var routes = Backbone.Router.extend({
   },
   stats: function(){
     $.get("/getSearches",function(data){
-      $("#statSelector").html("");
-      $("#statSelector").append("<option>Select a search object</option>");
-      for(i=0;i<data.length;i++){
-        $("#statSelector").append("<option>"+data[i].name+"</option>");
+      if(data.length>1){
+        $("#statSelector").html("");
+        $("#statSelector").append("<option>Select a search object</option>");
+        for(i=0;i<data.length;i++){
+          $("#statSelector").append("<option>"+data[i].name+"</option>");
+        }
+      }
+      else{
+        $("#statSelector").html("");
+        for(i=0;i<data.length;i++){
+          $("#statSelector").append("<option>"+data[i].name+"</option>");
+          $("#statSelector").change();
+        }
       }
     });
     $("#tableOptions").html("");
@@ -427,10 +436,19 @@ var routes = Backbone.Router.extend({
     //Get search objects from db
     $.get("/getSearches",function(data){
       searchesItem=data;
-      $("#searchSelector").html("");
-      $("#searchSelector").append("<option>Select a search object</option>");
-      for(i=0;i<searchesItem.length;i++){
-        $("#searchSelector").append("<option>"+data[i].name+"</option>");
+      if(data.length>1){
+        $("#searchSelector").html("");
+        $("#searchSelector").append("<option>Select a search object</option>");
+        for(i=0;i<searchesItem.length;i++){
+          $("#searchSelector").append("<option>"+data[i].name+"</option>");
+        }
+      }
+      else{
+        $("#searchSelector").html("");
+        for(i=0;i<searchesItem.length;i++){
+          $("#searchSelector").append("<option>"+data[i].name+"</option>");
+          $("#searchSelector").change();
+        }
       }
     });
     $("#tableOptions").html("");

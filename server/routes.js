@@ -120,11 +120,14 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
       MongoClient.connect(url,function(err,db){
         var searches=db.collection("searches");
         var stats=db.collection("statistics");
+        var tweets=db.collection("tweets");
         searches.remove({"name":req.body.name},function(err,result){
           stats.remove({"name":req.body.name},function(err,result){
-            db.close();
-            console.log("Deleted Search");
-            res.send("Succesfull");
+            tweets.remove({"searchName":req.body.name},function(err,result){
+              db.close();
+              console.log("Deleted Search");
+              res.send("Succesfull");
+            });
           });
         });
       });
