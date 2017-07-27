@@ -18,12 +18,12 @@ function searchReply(MongoClient,config,urlcodeJSON){
         }
         var verified=item[z].verified.toString();
         var searchName=item[z].name;
-        search(verified,searchName,tweets)
+        search(verified,searchName,tweets,db)
       }
     });
   });
 
-  function search(verified,searchName,tweets){
+  function search(verified,searchName,tweets,db){
     tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
