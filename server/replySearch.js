@@ -18,27 +18,31 @@ function searchReply(MongoClient,config,urlcodeJSON){
         }
         var verified=item[z].verified.toString();
         var searchName=item[z].name;
-        tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
-          db.close();
-          if(item.length>0){
-            for(i=0;i<item.length;i++){
-              //Select a key round robin style for the tweet to use to search
-              keyNum=i%config.keys.length;
-              //Create twitter client from the key selected above
-              client=new Twitter({
-                  consumer_key:config.keys[keyNum].CONSUMER_KEY,
-                  consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
-                  access_token_key: config.keys[keyNum].ACCESS_KEY,
-                  access_token_secret: config.keys[keyNum].ACCESS_SECRET
-              });
-              //Begin searching for replies
-            query(item[i].user.screenName,item[i],client,verified,searchName);
-            }
-          }
-        });
+        search(verified,searchName)
       }
     });
   });
+
+  function search(verified,searchName){
+    tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
+      db.close();
+      if(item.length>0){
+        for(i=0;i<item.length;i++){
+          //Select a key round robin style for the tweet to use to search
+          keyNum=i%config.keys.length;
+          //Create twitter client from the key selected above
+          client=new Twitter({
+              consumer_key:config.keys[keyNum].CONSUMER_KEY,
+              consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+              access_token_key: config.keys[keyNum].ACCESS_KEY,
+              access_token_secret: config.keys[keyNum].ACCESS_SECRET
+          });
+          //Begin searching for replies
+        query(item[i].user.screenName,item[i],client,verified,searchName);
+        }
+      }
+    });
+  }
 
   function updateStatistics(stats,name){
     MongoClient.connect(config.url,function(err,db){
