@@ -49,12 +49,12 @@ function searchReply(MongoClient,config,urlcodeJSON){
       var collection=db.collection("statistics");
       if(stats){
         collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
-          if(err) console.log(err);
+          if(err) console.error(err);
         });
       }
       else{
         collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
-          if(err) console.log(err);
+          if(err) console.error(err);
         });
       }
       db.close();
@@ -77,7 +77,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     //Search twitter for the user
     client.get(("users/show.json?"+query),function(error,tweets){
       if(error){
-        console.log(error);
+        console.error(error);
         return -1;
       }
       //If the user is a verified user set the fraud score to the base score
@@ -99,7 +99,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("tweets");
         collection.update({_id: results._id}, results, function (err, item) {
-          console.log("Successfully Updated");
         });
         db.close();
       });
@@ -117,7 +116,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     //Search the user on twitter and begin processing results
     client.get(("search/tweets.json?" + query), function (error, tweets) {
       if (error){
-        console.log(error);
+        console.error(error);
         return 0;
       }
       //If no tweets were found increase the attempts field and update in db
@@ -126,7 +125,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
         MongoClient.connect(config.url, function (err, db) {
           collection = db.collection("tweets");
           collection.update({_id: storedTweets._id}, storedTweets, function (err, item) {
-            console.log("No Reply Mentions found");
           });
           db.close();
         });
@@ -154,21 +152,18 @@ function searchReply(MongoClient,config,urlcodeJSON){
               results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
               //If the person responding is a verified screen name update the collection with zero percent fraud
               if (verified.includes(screenName)) {
-                console.log("Corrosponding tweet found and verified\n");
                 results.fraud = "%0";
                 MongoClient.connect(config.url, function (err, db) {
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
                     updateStatistics(true,searchName);
-                    console.log("Successfully Updated");
                   });
                 db.close();
                 });
               }
               //Else calculate the fraud score and save update the collection
               else {
-                console.log("Corrosponding tweet found and not verified\n");
                 //Update the replies found statistic
                 updateStatistics(false,searchName);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
@@ -184,7 +179,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("tweets");
         collection.update({_id: storedTweets._id}, storedTweets, function (err, item) {
-          console.log("No Relevant Results");
         });
         db.close();
       });

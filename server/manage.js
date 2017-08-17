@@ -8,7 +8,7 @@ var schedule=require('node-schedule');
 function randomAttempt(MongoClient,config){
   //Find all tweets that meet the reset criteria
   MongoClient.connect(config.url,function(err,db){
-    if(err) console.log(err);
+    if(err) console.error(err);
     var tweets=db.collection("tweets");
     tweets.find({replyFound:false,attempts:{$gt:29}}).toArray(function(err,data){
       //Select a random tweet from the results set the attempts to 10 then update
@@ -20,10 +20,7 @@ function randomAttempt(MongoClient,config){
       item.attempts=28;
       tweets.update({_id:item._id},item,function(err,res){
         if(err){
-          console.log(err);
-        }
-        else{
-          console.log("Tweet #"+item._id+" reset")
+          console.error(err);
         }
       });
     });
@@ -34,16 +31,15 @@ function randomAttempt(MongoClient,config){
 function clean(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
     if(err){
-      console.log(err);
+      console.error(err);
       return -1;
     }
     var tweets=db.collection("tweets");
     tweets.remove({replyFound:false,attempts:{$gt:29}},function(err){
       if(err){
-        console.log(err);
+        console.error(err);
         rerturn -1;
       }
-      console.log("Database cleaned up");
     });
   });
 }
@@ -51,29 +47,28 @@ function clean(MongoClient,config){
 //Reset the database (excludes users and any terms)
 function reset(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
-    if(err) console.log(err);
+    if(err) console.error(err);
     var tweets=db.collection("tweets");
     var stats=db.collection("statistics");
     var searches=db.collection("searches");
     //Reset statistics
     stats.updateMany({},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
       if(err){
-        console.log(err);
+        console.error(err);
         return -1;
       }
       //Reset lastID found
       searches.updateMany({},{$set:{lastID:[]}},function(err,item){
         if(err){
-          console.log(err);
+          console.error(err);
           return -1;mo
         }
         //Remove all tweets
         tweets.remove({},function(err,results){
           if(err){
-            console.log(err);
+            console.error(err);
             return -1;
           }
-          console.log("Successfull reset");
         });
       });
     });

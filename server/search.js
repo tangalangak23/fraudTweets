@@ -69,7 +69,6 @@ function searchTweets(MongoClient,config,urlcodeJSON){
             results.averageNegativeScore=results.averageNegativeScore+(negativeSum/negativeCount);
           }
           statsCollection.update({"name":name},results,function (err, item) {
-              console.log("Successfully Updated statistics");
           });
         }
         else{
@@ -80,7 +79,6 @@ function searchTweets(MongoClient,config,urlcodeJSON){
             results.averageNegativeScore=(((results.averageNegativeScore*results.negativeCount)+((negativeSum/negativeCount)*negativeCount))/(results.negativeCount+negativeCount));
           }
           statsCollection.update({"name":name},results,function (err, item) {
-              console.log("Successfully Updated statistics");
           });
         }
         db.close();
@@ -103,7 +101,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     //Get the users last 20 tweets filtering replies and re tweets
     client.get(("statuses/user_timeline.json?"+query),function(error,tweets){
       if(error){
-        console.log(error);
+        console.error(error);
         return -1;
       }
       //Calculate the users average sentiment
@@ -137,20 +135,18 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     client.get(("search/tweets.json?"+query),function(error,tweets){
       //If twitter returns an error log the query and error then return -1
       if(error){
-        console.log(query);
-        console.log(error);
+        console.error(query);
+        console.error(error);
         return -1;
       }
       //Initialize mongo connection that will be used for storing tweets
       MongoClient.connect(config.url,function(err,db){
         //If there's an error assert
         assert.equal(null,err);
-        console.log("Running search...");
         var length=tweets.statuses.length;
         //If no tweets were found close the db connection and end
         if(length==0){
            db.close();
-           console.log("Search complete\n");
            return 0;
         }
         //For each of the tweets found
@@ -166,8 +162,6 @@ function searchTweets(MongoClient,config,urlcodeJSON){
             score=sentiment(text).score;
             //Add the score to the gobal score list
             scores.push(score);
-            console.log(name+"\n"+uid+"\n--------------");
-            console.log(text+"\n"+score+"\n\n\n");
             //If the score is less than zero create object and store in db
             if(score<0){
               var tweet={
@@ -211,7 +205,6 @@ function searchTweets(MongoClient,config,urlcodeJSON){
         var searches=db.collection("searches");
         lastID[index]=tweets.statuses[0].id_str;
         searches.update({"name":searchName},{$set:{"lastID":lastID}});
-        console.log("Search complete\n");
         db.close()
       });
     });
