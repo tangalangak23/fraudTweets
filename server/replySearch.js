@@ -44,19 +44,24 @@ function searchReply(MongoClient,config,urlcodeJSON){
     });
   }
 
-  function updateStatistics(stats,name){
+  function updateStatistics(stats,name,time){
     MongoClient.connect(config.url,function(err,db){
       var collection=db.collection("statistics");
-      if(stats){
-        collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
-          if(err) console.error(err);
-        });
-      }
-      else{
-        collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
-          if(err) console.error(err);
-        });
-      }
+      collection.find({"name":name}).toArray(function(err,item){
+        item=item[0];
+        if(stats){
+          responseTime=(((item.validResponseTime*item.validRepliesFound)+(time))/(item.validRepliesFound+1));
+          collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1},$set:{"validResponseTime":responseTime}},function (err, item) {
+            if(err) console.error(err);
+          });
+        }
+        else{
+          responseTime=(((item.invalidResponseTime*item.fraudulentRepliesFound)+(time))/(item.fraudulentRepliesFound+1));
+          collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1},$set:{"invalidResponseTime":responseTime}},function (err, item) {
+            if(err) console.error(err);
+          });
+        }
+      });
       db.close();
     });
   }
@@ -157,7 +162,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
-                    updateStatistics(true,searchName);
+                    updateStatistics(true,searchName,results.responseTime);
                   });
                 db.close();
                 });
@@ -165,7 +170,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
               //Else calculate the fraud score and save update the collection
               else {
                 //Update the replies found statistic
-                updateStatistics(false,searchName);
+                updateStatistics(false,searchName,results.responseTime);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user
