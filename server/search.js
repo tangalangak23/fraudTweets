@@ -13,39 +13,41 @@ var lastID;
 function searchTweets(MongoClient,config,urlcodeJSON){
   //Connect to mongo db and pull relevant information to start the search
   MongoClient.connect(config.url,function(err,db){
-    var constants=db.collection("constants");
-    constants.find({"name":"lastID"}).toArray(function(err,item){
-      //For each of the items names lastID (Which is the name attribute for search terms) run the search
+    var searches=db.collection("searches");
+    //Find search entries
+    searches.find({}).toArray(function(err,item){
       for(i=0;i<item.length;i++){
-        //Select the appropriate authorization key to use from the config file
-        keyNum=i%config.keys.length;
-        //Get relevant info from db record
-        lastID=item[i].value;
-        handle=item[i].handle;
-        //Create a twitter client with the key selected above
-        client=new Twitter({
-          consumer_key:config.keys[keyNum].CONSUMER_KEY,
-          consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
-          access_token_key: config.keys[keyNum].ACCESS_KEY,
-          access_token_secret: config.keys[keyNum].ACCESS_SECRET
-        });
-        //Run the search given the information from above
-        query(handle,lastID,client)
+        for(j=0;j<item[i].terms.length;j++){
+          //Select the appropriate authorization key to use from the config file
+          keyNum=j%config.keys.length;
+          //Get relevant info from db record
+          lastID=item[i].lastID;
+          handle=item[i].terms[j];
+          //Create a twitter client with the key selected above
+          client=new Twitter({
+            consumer_key:config.keys[keyNum].CONSUMER_KEY,
+            consumer_secret:config.keys[keyNum].CONSUMER_SECRET,
+            access_token_key: config.keys[keyNum].ACCESS_KEY,
+            access_token_secret: config.keys[keyNum].ACCESS_SECRET
+          });
+          //Run the search given the information from above
+          query(handle,lastID,client,item[i].name,j)
+        }
       }
     });
     db.close();
   });
 
   //Update the general statistics
-  function updateStatistics(stats){
+  function updateStatistics(stats,name){
     if(stats.length==0){
       return -1;
     }
     //Open db connection,
     MongoClient.connect(config.url,function(err,db){
-      var constants=db.collection("constants");
+      var statsCollection=db.collection("statistics");
       //Find the current statistics in the database
-      constants.find({"name":"statistics"}).toArray(function(err,item){
+      statsCollection.find({"name":name}).toArray(function(err,item){
         var totalSum=0;
         var negativeSum=0;
         var negativeCount=0;
@@ -66,7 +68,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=results.averageNegativeScore+(negativeSum/negativeCount);
           }
-          constants.update({"name":"statistics"},results,function (err, item) {
+          statsCollection.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
@@ -77,7 +79,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           if(negativeCount!=0){
             results.averageNegativeScore=(((results.averageNegativeScore*results.negativeCount)+((negativeSum/negativeCount)*negativeCount))/(results.negativeCount+negativeCount));
           }
-          constants.update({"name":"statistics"},results,function (err, item) {
+          statsCollection.update({"name":name},results,function (err, item) {
               console.log("Successfully Updated statistics");
           });
         }
@@ -120,14 +122,14 @@ function searchTweets(MongoClient,config,urlcodeJSON){
     });
   }
 
-  function query(handle,lastID,client){
+  function query(handle,lastID,client,searchName,index){
     var scores=[];
     //Setup and encode query to be used with Twitter
     var query={
       q:encodeURIComponent(handle),
       result_type:"recent",
       count:100,
-      since_id:lastID
+      since_id:lastID[index]
     };
     query=urlcodeJSON.encode(query);
 
@@ -192,6 +194,7 @@ function searchTweets(MongoClient,config,urlcodeJSON){
               "score":score,
               "dateTime":tweets.statuses[i].created_at,
               "handle":handle,
+              "searchName":searchName,
               "replyFound":false,
               "fraud":null,
               "attempts":0,
@@ -204,9 +207,10 @@ function searchTweets(MongoClient,config,urlcodeJSON){
           }
         }
         //Update general statistics and the lastID found in the db
-        updateStatistics(scores);
-        var constants=db.collection("constants");
-        constants.update({"handle":handle},{name:"lastID","handle":handle,value:tweets.statuses[0].id_str});
+        updateStatistics(scores,searchName);
+        var searches=db.collection("searches");
+        lastID[index]=tweets.statuses[0].id_str;
+        searches.update({"name":searchName},{$set:{"lastID":lastID}});
         console.log("Search complete\n");
         db.close()
       });

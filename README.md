@@ -27,7 +27,8 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
 - MongoDB
 
 ## Setup
-##### 1) Setup config file like follows
+#### Install MongoDB
+#### Setup config file like follows
 - server/config/authorization.json
 
 ```javascript
@@ -50,28 +51,45 @@ The purpose of this program is to detect fraud on twitter. It does this by targe
   ]
 }
 ```
-#### 2) Create MongoDB collections
+## Install
+### Automated
+#### 1) Run install.js
+```
+cd WORKING_PATH/
+node install.js
+```
+#### 2) Start using prefered run method
+#### 3) Login with default account uname=ftweets password=superSecretPassword
+####
+### Manual
+#### 1) Create MongoDB collections
 
 ```javascript
 db.createCollection("tweets")
-db.createCollection("constants")
+db.createCollection("statistics")
 db.createCollection("users")
+db.createCollection("searches")
 ```
 
-#### 3) User collection in MongoDB
+#### 2) User collection in MongoDB
 
-- Only required fields are uname and an md5 hashed password
+- Salt to be implemented
 
 ```javascript
 {uname:"criggs626",password:"ijhzgdfiuhasdoifjaosifgadsf",email:"example@whatever.com",name:"Caleb Riggs"}
 ```
-#### 3) Constants collection in MongoDB
-- required for tracking searched tweets and verified handles
+#### 3) Searches collection in MongoDB
+
+- Required for searching tweets and verifying responses
 
 ```javascript
-{name:"lastID","handle":"SEARCH TERM",value:"0"}
-{name:"verifiedHandles",value:["handle",""]}
-{name:"statistics",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
+{name : "Sprint", terms : [ "@sprint", "#sprint" ], verified : [ "sprintcare" ], lastID : [ "0", "0" ] }
+```
+#### 4) Statistics collection in MongoDB
+- required for monitoring general statistics on the search terms
+
+```javascript
+{name:"Sprint",count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}
 ```
 
 ## Running
@@ -84,20 +102,21 @@ node index.js
 ```
 - #### Background
 
-For running in the background I recomend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
+For running in the background I recommend forever a node package. Once forever is installed follow same steps as above just 'forever start' instead of 'node'.
 ```
 cd WORKING_PATH/fraud/server/
 forever start index.js
 ```
 
 ## Stats
-- #### 1,350 Lines of JavaScript
-- #### 327 Lines of HTML
-- #### 138 Lines of CSS
-- #### 105 Lines of MD (This totally counts...)
-- #### 1,920 Total Lines Written
+- #### 1,572 Lines of JavaScript
+- #### 429 Lines of HTML
+- #### 149 Lines of CSS
+- #### 123 Lines of MD (This totally counts...)
+- #### 2,273 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten
 - #### 2 Cats pet
+- #### 1 Hailstorm driven through
 - #### 0 Coffees drank

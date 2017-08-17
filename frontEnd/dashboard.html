@@ -20,8 +20,7 @@
     <div class="navLink"><h3 style="margin:0;"><img src="img/iqor.png" height=40> <b>Fraud</b>Tweets</h3></div>
     <div class="navLink" id="homeLink"><h4><a href="#">Home</a></h4></div>
     <div class="navLink" id="statsLink"><h4><a href="#statistics">Statistics</a></h4></div>
-    <div class="navLink" id="handleLink"><h4><a href="#verifiedHandles">Verified Handles</a></h4></div>
-    <div class="navLink" id="termLink"><h4><a href="#searchTerms">Search Terms</a></h4></div>
+    <div class="navLink" id="manageLink"><h4><a href="#searchManage">Search Managment</a></h4></div>
     <div class="uac" style="float:right;">
       <div class="dropdown">
         <img src="img/person.png" data-toggle="dropdown" style="height:40px">
@@ -29,12 +28,16 @@
             <li><a id="generalUAC">General Account Settings</a></li>
             <li><a id="changePassword">Change Password</a></li>
             <li class="divider"></li>
+            <li><a id="newUser">Add User</a></li>
+            <li><a id="userManage">Manage Users</a></li>
+            <li class="divider"></li>
             <li><a href="/logout">Logout</a></li>
           </ul>
       </div>
     </div>
   </div>
   <div class="navBar">
+    <div id="tableOptions"></div>
   </div>
   <div class="container" id="dashboard" style="display:none;">
     <div class="row">
@@ -62,80 +65,130 @@
 
   <div class="container" id="statistics" style="display:none;">
     <div class="row">
-      <div class="col-md-12"><h1>Statistics</h1></div>
+      <div class="col-md-4"><h1>Statistics for</h1></div><div class="col-md-8" style="padding-top:1.5%;"><select class="form-control input-lg" id="statSelector"></select></div>
     </div>
-    <div class="row">
-      <div class="col-md-12"><h3>Below are some statistics from the observed data</h3></div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-6">
-        <h1>Average Total Score<br>
-          <span id="totalAverage"></span>
-        </h1>
+    <div id="statView" style="display:none;">
+      <div class="row stats">
+        <div class="col-md-6">
+          <h1>Average Total Score<br>
+            <span id="totalAverage"></span>
+          </h1>
+        </div>
+        <div class="col-md-6">
+          <h1>Average Negative Score<br>
+            <span id="negativeAverage"></span>
+          </h1>
+        </div>
       </div>
-      <div class="col-md-6">
-        <h1>Average Negative Score<br>
-          <span id="negativeAverage"></span>
-        </h1>
+      <div class="row stats">
+        <div class="col-md-4">
+          <h1>Total Tweets<br>
+            <span id="totalCount"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Negative Tweets<br>
+            <span id="negativeCount"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Avg. Response Time<br>
+            <span id="responseTime"></span>
+          </h1>
+        </div>
       </div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-4">
-        <h1>Total Tweets<br>
-          <span id="totalCount"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Negative Tweets<br>
-          <span id="negativeCount"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Avg. Response Time<br>
-          <span id="responseTime"></span>
-        </h1>
-      </div>
-    </div>
-    <div class="row stats">
-      <div class="col-md-4">
-        <h1>Responses Found<br>
-          <span id="responsesFound"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Percent Valid<br>
-          <span id="validResponses"></span>
-        </h1>
-      </div>
-      <div class="col-md-4">
-        <h1>Potential Fraud<br>
-          <span id="fraudResponses"></span>
-        </h1>
+      <div class="row stats">
+        <div class="col-md-4">
+          <h1>Responses Found<br>
+            <span id="responsesFound"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Percent Valid<br>
+            <span id="validResponses"></span>
+          </h1>
+        </div>
+        <div class="col-md-4">
+          <h1>Potential Fraud<br>
+            <span id="fraudResponses"></span>
+          </h1>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container" id="handle" style="display:none;">
+  <div class="container" id="searches" style="display:none;">
     <div class="row">
-      <div class="col-md-12"><h1 id="manageH1">Manage the verified handles below</h1></div>
+      <div class="col-md-12"><h1>Manage the search items below</h1></div>
     </div>
     <div class="row">
-      <div class="col-md-12"><h3 id="manageH3">A verified handle is a handle that will not flag as fraud when they reply offering help.</h3></div>
+      <div class="col-md-12"><h3>Below the handles searched and verified responders can be adjusted</h3></div>
     </div>
-    <table class="table table-striped" style="width:70%;margin-left:15%;">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody id="handlesContainter">
+    <div class="containter" id="searchNames">
+      <div class=row>
+        <div class=col-md-8><select class="form-control input-lg" id="searchSelector"></select></div>
+        <div class=col-md-4><button class="btn btn-success btn-lg" id="newSearchbtn">Add new search object</button></div>
+      </div>
+      <div id="managmentContent" style="display:none;">
+        <h2>Search Terms</h2>
+        <div class="row">
+          <table class="table table-striped" style="text-align:left;">
+            <thead>
+              <tr>
+                <th>Search Term</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr><td><button class="btn btn-primary" onclick="$('#searchTerms').append('<tr><td><input type=text class=\'form-control newTerm\'></td></tr>');">Add Handle</button></td></tr>
+            </tfoot>
+            <tbody id="searchTerms">
 
-      </tbody>
-      <tfoot>
-        <tr><td><button class='btn btn-success' id='add'>Add Handle</button></td><td><button class='btn btn-primary' id='update'>Update</button></td></tr>
-      </tfoot>
-    </table>
+            </tbody>
+          </table>
+        </div>
+        <h2>Verified Responders</h2>
+        <div class="row">
+          <table class="table table-striped" style="text-align:left;">
+            <thead>
+              <tr>
+                <th>Responder handle</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr><td><button class="btn btn-primary" onclick="$('#verifiedHandles').append('<tr><td><input type=text class=\'form-control newHandle\'></td></tr>');">Add Handle</button></td></tr>
+            </tfoot>
+            <tbody id="verifiedHandles">
+
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <button class="btn btn-lg btn-danger" onclick="deleteSearch()">Delete Record</button>
+          <button class="btn btn-lg btn-success" onclick="updateSearches()">Update Record</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id='newSearch' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>Add New Search Object</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;"><form id="newSearchForm" method="post" action="/newSearch">
+        <label>Enter a name:</label><input type="text" class="form-control" placeholder="Expample: Sprint" name="name">
+        <label>Enter One Search term:</label><input type="text" class="form-control" placeholder="Search terms must begin with @ or #" name="term"><br>
+        <label>Enter a verified responder(optional):</label><input type="text" class="form-control" placeholder="Example: sprintcare" name="handle"><br>
+        <button class="btn btn-primary">Add Search</button>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#newSearch').fadeOut();setMessage("");" type=button>Dismiss</button></span>
+      </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
+    </div>
   </div>
 
   <div id='detailedView' class="modal" style="display:none;">
@@ -201,8 +254,57 @@
         <label>User Name</label><input type="text" id="uName" class="form-control" name="uname"><br>
         <label>E-mail</label><input type="text" id="email" class="form-control" name="email"><br>
         <input type="submit" class="btn btn-primary" value="Update Info">
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#generalAccount').hide()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#generalAccount').hide();setMessage("");" type=button>Dismiss</button></span>
       </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
+    </div>
+  </div>
+
+  <div id='addUser' class="modal" style="display:none;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>New User</span>
+        </p>
+      </h2>
+      <div class="form-group" style="text-align:left;"><form method="post" action="/newUser">
+        <label>Name</label><input type="text" class="form-control" value="" placeholder="Ex. John Smith" name="name"><br>
+        <label>User Name</label><input type="text" class="form-control" placeholder="The user will use this to login" name="uname"><br>
+        <label>E-mail</label><input type="email" class="form-control" placeholder="Ex. fraud@tweets.com" name="email"><br>
+        <label>New Password</label><input type="password" class="form-control" placeholder="Password for login" name="password"><br>
+        <input type="submit" class="btn btn-primary" value="Add User">
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#addUser').fadeOut();setMessage('');" type=button>Dismiss</button></span>
+      </form></div>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
+    </div>
+  </div>
+
+  <div id='manageUsers' class="modal" style="display:none;z-index:9;">
+    <div class="container inner">
+      <h2>
+        <p style="text-align:left;">
+          <span>Manage User</span>
+        </p>
+      </h2>
+      <div class="form-group users" style="text-align:left;">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>User Name</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody id="users">
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-primary" onclick="$('#addUser').fadeIn();">Add User</button>
+      <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#manageUsers').fadeOut();setMessage('');" type=button>Dismiss</button></span>
+      <div class="tweetLink">
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
 
@@ -218,10 +320,10 @@
         <label>New Password</label><input type="password" class="form-control" placeholder="New Password" id="newPass"><br>
         <label>Re-Type New Password</label><input type="password" class="form-control" placeholder="Re-Type New Password" id="newPass2"><br>
         <button class="btn btn-primary" id="passwordForm">Update Info</button>
-        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').hide()" type=button>Dismiss</button></span>
+        <span style="float:right;margin-bottom:10px;"><button class="btn btn-success" onClick="$('#passwordChange').fadeOut(500);resetPass();" type=button>Dismiss</button></span>
       </div>
       <div class="tweetLink">
-      <h5><b id="message"></b></h5></div>
+      <h5><b class="message"></b></h5></div>
     </div>
   </div>
   <footer class="footer" style="text-align:left;">

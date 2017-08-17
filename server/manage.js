@@ -53,18 +53,19 @@ function reset(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
     if(err) console.log(err);
     var tweets=db.collection("tweets");
-    var constants=db.collection("constants");
+    var stats=db.collection("statistics");
+    var searches=db.collection("searches");
     //Reset statistics
-    constants.updateMany({name:"statistics"},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
+    stats.updateMany({},{$set:{count:0,negativeCount:0,averageScore:0,averageNegativeScore:0,validRepliesFound:0,fraudulentRepliesFound:0}},function(err,item){
       if(err){
         console.log(err);
         return -1;
       }
       //Reset lastID found
-      constants.updateMany({name:"lastID"},{$set:{value:"0"}},function(err,item){
+      searches.updateMany({},{$set:{lastID:[]}},function(err,item){
         if(err){
           console.log(err);
-          return -1;
+          return -1;mo
         }
         //Remove all tweets
         tweets.remove({},function(err,results){

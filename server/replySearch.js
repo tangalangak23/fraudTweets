@@ -5,11 +5,26 @@ var assert=require('assert');
 var Twitter=require("twitter");
 var config;
 
-function searchReply(MongoClient,config,urlcodeJSON,verified){
+function searchReply(MongoClient,config,urlcodeJSON){
   var tweets;
   //Connect to the db to find the tweets that need to be searched
   MongoClient.connect(config.url,function(err,db){
-    db.collection("tweets").find({"replyFound":false,"attempts":{$lt:30}}).toArray(function(err,item){
+    var searches=db.collection("searches");
+    var tweets=db.collection("tweets");
+    searches.find().toArray(function(err,item){
+      for(z=0;z<item.length;z++){
+        if(item[z].verified[0]==""){
+          return -1;
+        }
+        var verified=item[z].verified.toString();
+        var searchName=item[z].name;
+        search(verified,searchName,tweets,db)
+      }
+    });
+  });
+
+  function search(verified,searchName,tweets,db){
+    tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -23,31 +38,26 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
               access_token_secret: config.keys[keyNum].ACCESS_SECRET
           });
           //Begin searching for replies
-        query(item[i].user.screenName,item[i],client);
+        query(item[i].user.screenName,item[i],client,verified,searchName);
         }
       }
     });
-  });
+  }
 
-  function updateStatistics(stats){
+  function updateStatistics(stats,name){
     MongoClient.connect(config.url,function(err,db){
-      var constants=db.collection("constants");
-      constants.find({"name":"statistics"}).toArray(function(err,item){
-        results=item[0];
-        if(stats){
-          results.validRepliesFound+=1;
-          constants.update({"name":"statistics"},results,function (err, item) {
-            if(err) console.log(err);
-          });
-        }
-        else{
-          results.fraudulentRepliesFound+=1
-          constants.update({"name":"statistics"},results,function (err, item) {
-            if(err) console.log(err);
-          });
-        }
-        db.close();
-      });
+      var collection=db.collection("statistics");
+      if(stats){
+        collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
+          if(err) console.log(err);
+        });
+      }
+      else{
+        collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
+          if(err) console.log(err);
+        });
+      }
+      db.close();
     });
   }
 
@@ -96,7 +106,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
     });
   }
 
-  function query(handle, storedTweets,client) {
+  function query(handle, storedTweets,client,verified,searchName) {
     //Create query and encode
     var query = {
         q: "@"+handle,
@@ -150,7 +160,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
-                    updateStatistics(true);
+                    updateStatistics(true,searchName);
                     console.log("Successfully Updated");
                   });
                 db.close();
@@ -160,7 +170,7 @@ function searchReply(MongoClient,config,urlcodeJSON,verified){
               else {
                 console.log("Corrosponding tweet found and not verified\n");
                 //Update the replies found statistic
-                updateStatistics(false);
+                updateStatistics(false,searchName);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user
@@ -229,24 +239,11 @@ function checkHelp(text){
 module.exports=function(MongoClient,config,urlcodeJSON){
   //Search the stored tweets once for replies
 	this.singleReply=function(){
-    //Find the verified handles from the databse then begin search
-    MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("constants");
-        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
-          db.close();
-          searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());
-        });
-    });
+    searchReply(MongoClient,config,urlcodeJSON);
 	}
   //Search the stored tweets every minute for replies
 	this.startReplyIndexing=function(){
     //Find the verified handles from the databse then begin search
-    MongoClient.connect(config.url, function (err, db) {
-        collection = db.collection("constants");
-        collection.find({name: "verifiedHandles"}).toArray(function (err, item) {
-          db.close();
-          setInterval(function(){searchReply(MongoClient,config,urlcodeJSON,item[0].value.toString());},60000);
-        });
-    });
+    setInterval(function(){searchReply(MongoClient,config,urlcodeJSON);},60000);
 	}
 }
