@@ -78,7 +78,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
             item.invalidResponseTime=(((item.invalidResponseTime*item.fraudulentRepliesFound)+((tempNSum/tempNCount)*tempNCount))/(item.fraudulentRepliesFound+tempNCount));
             item.fraudulentRepliesFound+=tempNCount;
           }
-          console.log(item);
           collection.update({"name":name},item,function(err,item){
             if (err) {console.error(err)};
             db.close();
