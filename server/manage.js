@@ -35,7 +35,7 @@ function clean(MongoClient,config){
       return -1;
     }
     var tweets=db.collection("tweets");
-    tweets.remove({replyFound:false,attempts:{$gt:29}},function(err){
+    tweets.remove({replyFound:false,attempts:{$gt:19}},function(err){
       if(err){
         console.error(err);
         rerturn -1;
