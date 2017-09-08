@@ -35,7 +35,7 @@ var table=$("#tweets").DataTable({
       else if (value!=null) {
         $(nRow).addClass('invalid');
       }
-      else if (aData.attempts>=30) {
+      else if (aData.attempts>=20) {
         $(nRow).addClass('toMany');
       }
     }

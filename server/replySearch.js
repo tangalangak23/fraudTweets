@@ -24,7 +24,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
   });
 
   function search(verified,searchName,tweets,db){
-    tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:30}}).toArray(function(err,item){
+    tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:20}}).toArray(function(err,item){
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
