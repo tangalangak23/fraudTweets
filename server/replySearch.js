@@ -4,8 +4,6 @@ Created By: Caleb Riggs
 var assert=require('assert');
 var Twitter=require("twitter");
 var config;
-var total=0;
-var globStats=[];
 
 function searchReply(MongoClient,config,urlcodeJSON){
   var tweets;
@@ -27,7 +25,8 @@ function searchReply(MongoClient,config,urlcodeJSON){
 
   function search(verified,searchName,tweets,db){
     tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:20}}).toArray(function(err,item){
-      total=item.length;
+      total[searchName]=item.length;
+      globStats[searchName]=[];
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -46,46 +45,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       }
     });
   }
-
-  function updateStatistics(stats,name,time,update){
-    if(update){
-      globStats.push([stats,time]);
-    }
-    if(total==0 && globStats.length!=0){
-      MongoClient.connect(config.url,function(err,db){
-        var collection=db.collection("statistics");
-        collection.find({"name":name}).toArray(function(err,item){
-          item=item[0];
-          var tempPCount=0;
-          var tempNCount=0;
-          var tempPSum=0;
-          var tempNSum=0;
-          for(i=0;i<globStats.length;i++){
-            if(globStats[i][0]){
-              tempPCount+=1;
-              tempPSum+=globStats[i][1];
-            }
-            else{
-              tempNCount+=1;
-              tempNSum+=globStats[i][1];
-            }
-          }
-          if (tempPCount!=0){
-            item.validResponseTime=(((item.validResponseTime*item.validRepliesFound)+((tempPSum/tempPCount)*tempPCount))/(item.validRepliesFound+tempPCount));
-            item.validRepliesFound+=tempPCount;
-          }
-          if (tempNCount!=0){
-            item.invalidResponseTime=(((item.invalidResponseTime*item.fraudulentRepliesFound)+((tempNSum/tempNCount)*tempNCount))/(item.fraudulentRepliesFound+tempNCount));
-            item.fraudulentRepliesFound+=tempNCount;
-          }
-          collection.update({"name":name},item,function(err,item){
-            if (err) {console.error(err)};
-            db.close();
-          });
-      });
-    });
-  }
-}
 
   //Used to calculate the fraud score and store the results in the db
   function fraudScore(name,valid,urlcodeJSON,results){
@@ -145,7 +104,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
         console.error(error);
         return 0;
       }
-      total-=1;
+      total[searchName]-=1;
       //If no tweets were found increase the attempts field and update in db
       if (tweets.statuses.length == 0) {
         storedTweets.attempts+=1;
@@ -184,7 +143,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
-                    updateStatistics(true,searchName,results.responseTime,true);
                   });
                 db.close();
                 });
@@ -192,7 +150,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
               //Else calculate the fraud score and save update the collection
               else {
                 //Update the replies found statistic
-                updateStatistics(false,searchName,results.responseTime,true);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user
@@ -204,7 +161,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       //If no conditions met increment the attempts counter
       storedTweets.attempts+=1;
       MongoClient.connect(config.url, function (err, db) {
-        updateStatistics(false,searchName,"responseTime",false);
         collection = db.collection("tweets");
         collection.update({_id: storedTweets._id}, storedTweets, function (err, item) {
         });
