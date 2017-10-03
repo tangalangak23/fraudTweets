@@ -1,7 +1,6 @@
 /* The purpouse of this file is to begin searching for replies of stored tweets.
 Created By: Caleb Riggs
 */
-var assert=require('assert');
 var Twitter=require("twitter");
 var config;
 
@@ -25,8 +24,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
 
   function search(verified,searchName,tweets,db){
     tweets.find({"replyFound":false,"searchName":searchName,"attempts":{$lt:20}}).toArray(function(err,item){
-      total[searchName]=item.length;
-      globStats[searchName]=[];
       db.close();
       if(item.length>0){
         for(i=0;i<item.length;i++){
@@ -104,7 +101,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
         console.error(error);
         return 0;
       }
-      total[searchName]-=1;
       //If no tweets were found increase the attempts field and update in db
       if (tweets.statuses.length == 0) {
         storedTweets.attempts+=1;
