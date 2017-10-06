@@ -40,7 +40,7 @@ if(!DEBUG){
 	startReplyIndexing();
 	startManage();
 }
-singleReply()
+
 //require passport for authentication, pass it dependencies
 require('./config/passport')(MongoClient, passport,mongo,md5,config.url);
 app.use(cookieParser()); // read cookies (needed for auth)
