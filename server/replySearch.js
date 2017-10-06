@@ -3,8 +3,10 @@ Created By: Caleb Riggs
 */
 var Twitter=require("twitter");
 var config;
+var globStats={}
 
 function searchReply(MongoClient,config,urlcodeJSON){
+  setTimeout(updateStatistics,15000);
   var tweets;
   //Connect to the db to find the tweets that need to be searched
   MongoClient.connect(config.url,function(err,db){
@@ -12,6 +14,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     var tweets=db.collection("tweets");
     searches.find().toArray(function(err,item){
       for(z=0;z<item.length;z++){
+        globStats[item[z].name]={validReplies:[],invalidReplies:[]}
         if(item[z].verified[0]==""){
           return -1;
         }
@@ -40,6 +43,50 @@ function searchReply(MongoClient,config,urlcodeJSON){
         query(item[i].user.screenName,item[i],client,verified,searchName);
         }
       }
+    });
+  }
+
+  function updateStatistics(){
+    MongoClient.connect(config.url,function(err,db){
+      var stats=db.collection("statistics");
+      stats.find().toArray(function(err,item){
+        var update=false;
+        //{validReplies:[],invalidReplies:[]}
+        //"name" : "Sprint", "count" : 109, "negativeCount" : 37, "averageScore" : -0.9910714285714286, "averageNegativeScore" : -4.134166666666666, "validRepliesFound" : 0, "fraudulentRepliesFound" : 0, "validResponseTime" : 0, "invalidResponseTime" : 0 }
+        for(i=0;i<item.length;i++){
+          tempItem=item[i];
+          tempStats=globStats[tempItem.name];
+
+          if(tempStats.validReplies.length!=0){
+            var sum=0;
+            for(j=0;j<tempStats.validReplies.length;j++){
+              sum+=tempStats.validReplies[j];
+            }
+            tempItem.validResponseTime=(tempItem.validRepliesFound==0) ? (sum/tempStats.validReplies.length) : (((tempItem.validResponseTime*tempItem.validRepliesFound)+((sum/tempStats.validReplies.length)*tempStats.validReplies.length))/(tempItem.validRepliesFound.length+tempStats.validReplies.length));
+            tempItem.validRepliesFound+=tempStats.validReplies.length;
+            update=true;
+          }
+          if(tempStats.invalidReplies.length!=0){
+            var sum=0;
+            for(j=0;j<tempStats.invalidReplies.length;j++){
+              sum+=tempStats.invalidReplies[j];
+            }
+            tempItem.invalidResponseTime=(tempItem.fraudulentRepliesFound==0) ? (sum/tempStats.invalidReplies.length) : (((tempItem.invalidResponseTime*tempItem.fraudulentRepliesFound)+((sum/tempStats.invalidReplies.length)*tempStats.invalidReplies.length))/(tempItem.fraudulentRepliesFound.length+tempStats.invalidReplies.length));
+            tempItem.fraudulentRepliesFound+=tempStats.invalidReplies.length;
+            update=true;
+          }
+          if(update){
+            stats.update({"name":tempItem.name},tempItem,function (err, item) {
+              if(err){
+                console.error(err);
+              }
+              else{
+                console.log("Success....Maybe");
+              }
+            });
+          }
+        }
+      });
     });
   }
 
@@ -135,6 +182,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
               //If the person responding is a verified screen name update the collection with zero percent fraud
               if (verified.includes(screenName)) {
                 results.fraud = "%0";
+                globStats[searchName]["validReplies"].push(results.responseTime);
                 MongoClient.connect(config.url, function (err, db) {
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
@@ -145,7 +193,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
               }
               //Else calculate the fraud score and save update the collection
               else {
-                //Update the replies found statistic
+                globStats[searchName]["invalidReplies"].push(results.responseTime);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user
