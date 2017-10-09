@@ -110,11 +110,11 @@ forever start index.js
 ```
 
 ## Stats
-- #### 1,572 Lines of JavaScript
+- #### 1,571 Lines of JavaScript
 - #### 429 Lines of HTML
 - #### 149 Lines of CSS
 - #### 123 Lines of MD (This totally counts...)
-- #### 2,273 Total Lines Written
+- #### 2,272 Total Lines Written
 
 ## Other Stats
 - #### ∞ Tacos Eaten

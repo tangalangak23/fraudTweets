@@ -51,8 +51,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       var stats=db.collection("statistics");
       stats.find().toArray(function(err,item){
         var update=false;
-        //{validReplies:[],invalidReplies:[]}
-        //"name" : "Sprint", "count" : 109, "negativeCount" : 37, "averageScore" : -0.9910714285714286, "averageNegativeScore" : -4.134166666666666, "validRepliesFound" : 0, "fraudulentRepliesFound" : 0, "validResponseTime" : 0, "invalidResponseTime" : 0 }
         for(i=0;i<item.length;i++){
           tempItem=item[i];
           tempStats=globStats[tempItem.name];
@@ -62,7 +60,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
             for(j=0;j<tempStats.validReplies.length;j++){
               sum+=tempStats.validReplies[j];
             }
-            tempItem.validResponseTime=(tempItem.validRepliesFound==0) ? (sum/tempStats.validReplies.length) : (((tempItem.validResponseTime*tempItem.validRepliesFound)+((sum/tempStats.validReplies.length)*tempStats.validReplies.length))/(tempItem.validRepliesFound.length+tempStats.validReplies.length));
+            tempItem.validResponseTime=(tempItem.validRepliesFound==0) ? (sum/tempStats.validReplies.length) : (((tempItem.validResponseTime*tempItem.validRepliesFound)+((sum/tempStats.validReplies.length)*tempStats.validReplies.length))/(tempItem.validRepliesFound+tempStats.validReplies.length));
             tempItem.validRepliesFound+=tempStats.validReplies.length;
             update=true;
           }
@@ -71,12 +69,13 @@ function searchReply(MongoClient,config,urlcodeJSON){
             for(j=0;j<tempStats.invalidReplies.length;j++){
               sum+=tempStats.invalidReplies[j];
             }
-            tempItem.invalidResponseTime=(tempItem.fraudulentRepliesFound==0) ? (sum/tempStats.invalidReplies.length) : (((tempItem.invalidResponseTime*tempItem.fraudulentRepliesFound)+((sum/tempStats.invalidReplies.length)*tempStats.invalidReplies.length))/(tempItem.fraudulentRepliesFound.length+tempStats.invalidReplies.length));
+            tempItem.invalidResponseTime=(tempItem.fraudulentRepliesFound==0) ? (sum/tempStats.invalidReplies.length) : (((tempItem.invalidResponseTime*tempItem.fraudulentRepliesFound)+((sum/tempStats.invalidReplies.length)*tempStats.invalidReplies.length))/(tempItem.fraudulentRepliesFound+tempStats.invalidReplies.length));
             tempItem.fraudulentRepliesFound+=tempStats.invalidReplies.length;
             update=true;
           }
           if(update){
             stats.update({"name":tempItem.name},tempItem,function (err, item) {
+              db.close();
               if(err){
                 console.error(err);
               }
