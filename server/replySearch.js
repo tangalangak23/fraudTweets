@@ -1,11 +1,12 @@
 /* The purpouse of this file is to begin searching for replies of stored tweets.
 Created By: Caleb Riggs
 */
-var assert=require('assert');
 var Twitter=require("twitter");
 var config;
+var globStats={}
 
 function searchReply(MongoClient,config,urlcodeJSON){
+  setTimeout(updateStatistics,15000);
   var tweets;
   //Connect to the db to find the tweets that need to be searched
   MongoClient.connect(config.url,function(err,db){
@@ -13,6 +14,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     var tweets=db.collection("tweets");
     searches.find().toArray(function(err,item){
       for(z=0;z<item.length;z++){
+        globStats[item[z].name]={validReplies:[],invalidReplies:[]}
         if(item[z].verified[0]==""){
           return -1;
         }
@@ -44,20 +46,46 @@ function searchReply(MongoClient,config,urlcodeJSON){
     });
   }
 
-  function updateStatistics(stats,name){
+  function updateStatistics(){
     MongoClient.connect(config.url,function(err,db){
-      var collection=db.collection("statistics");
-      if(stats){
-        collection.findOneAndUpdate({"name":name},{$inc:{validRepliesFound:1}},function (err, item) {
-          if(err) console.log(err);
-        });
-      }
-      else{
-        collection.findOneAndUpdate({"name":name},{$inc:{fraudulentRepliesFound:1}},function (err, item) {
-          if(err) console.log(err);
-        });
-      }
-      db.close();
+      var stats=db.collection("statistics");
+      stats.find().toArray(function(err,item){
+        var update=false;
+        for(i=0;i<item.length;i++){
+          tempItem=item[i];
+          tempStats=globStats[tempItem.name];
+
+          if(tempStats.validReplies.length!=0){
+            var sum=0;
+            for(j=0;j<tempStats.validReplies.length;j++){
+              sum+=tempStats.validReplies[j];
+            }
+            tempItem.validResponseTime=(tempItem.validRepliesFound==0) ? (sum/tempStats.validReplies.length) : (((tempItem.validResponseTime*tempItem.validRepliesFound)+((sum/tempStats.validReplies.length)*tempStats.validReplies.length))/(tempItem.validRepliesFound+tempStats.validReplies.length));
+            tempItem.validRepliesFound+=tempStats.validReplies.length;
+            update=true;
+          }
+          if(tempStats.invalidReplies.length!=0){
+            var sum=0;
+            for(j=0;j<tempStats.invalidReplies.length;j++){
+              sum+=tempStats.invalidReplies[j];
+            }
+            tempItem.invalidResponseTime=(tempItem.fraudulentRepliesFound==0) ? (sum/tempStats.invalidReplies.length) : (((tempItem.invalidResponseTime*tempItem.fraudulentRepliesFound)+((sum/tempStats.invalidReplies.length)*tempStats.invalidReplies.length))/(tempItem.fraudulentRepliesFound+tempStats.invalidReplies.length));
+            tempItem.fraudulentRepliesFound+=tempStats.invalidReplies.length;
+            update=true;
+          }
+          if(update){
+            stats.update({"name":tempItem.name},tempItem,function (err, item) {
+              db.close();
+              if(err){
+                console.error(err);
+              }
+              else{
+                console.log("Success....Maybe");
+              }
+            });
+          }
+        }
+      });
     });
   }
 
@@ -77,7 +105,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     //Search twitter for the user
     client.get(("users/show.json?"+query),function(error,tweets){
       if(error){
-        console.log(error);
+        console.error(error);
         return -1;
       }
       //If the user is a verified user set the fraud score to the base score
@@ -99,7 +127,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("tweets");
         collection.update({_id: results._id}, results, function (err, item) {
-          console.log("Successfully Updated");
         });
         db.close();
       });
@@ -117,7 +144,7 @@ function searchReply(MongoClient,config,urlcodeJSON){
     //Search the user on twitter and begin processing results
     client.get(("search/tweets.json?" + query), function (error, tweets) {
       if (error){
-        console.log(error);
+        console.error(error);
         return 0;
       }
       //If no tweets were found increase the attempts field and update in db
@@ -126,7 +153,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
         MongoClient.connect(config.url, function (err, db) {
           collection = db.collection("tweets");
           collection.update({_id: storedTweets._id}, storedTweets, function (err, item) {
-            console.log("No Reply Mentions found");
           });
           db.close();
         });
@@ -154,23 +180,19 @@ function searchReply(MongoClient,config,urlcodeJSON){
               results.lastReply = {"id": uid, "name": name, "screenName": screenName, "text": text, "dateTime": dateTime};
               //If the person responding is a verified screen name update the collection with zero percent fraud
               if (verified.includes(screenName)) {
-                console.log("Corrosponding tweet found and verified\n");
                 results.fraud = "%0";
+                globStats[searchName]["validReplies"].push(results.responseTime);
                 MongoClient.connect(config.url, function (err, db) {
                   collection = db.collection("tweets");
                   collection.update({_id: results._id}, results, function (err, item) {
                     //Update the replies found statistic
-                    updateStatistics(true,searchName);
-                    console.log("Successfully Updated");
                   });
                 db.close();
                 });
               }
               //Else calculate the fraud score and save update the collection
               else {
-                console.log("Corrosponding tweet found and not verified\n");
-                //Update the replies found statistic
-                updateStatistics(false,searchName);
+                globStats[searchName]["invalidReplies"].push(results.responseTime);
                 results.fraud = "%"+fraudScore(screenName,verified,urlcodeJSON,results,MongoClient);
               }
               //Once a response has been found exit the loop and continue to the next user
@@ -184,7 +206,6 @@ function searchReply(MongoClient,config,urlcodeJSON){
       MongoClient.connect(config.url, function (err, db) {
         collection = db.collection("tweets");
         collection.update({_id: storedTweets._id}, storedTweets, function (err, item) {
-          console.log("No Relevant Results");
         });
         db.close();
       });

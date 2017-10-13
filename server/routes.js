@@ -107,7 +107,7 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
           var searches=db.collection("searches");
           var stats=db.collection("statistics");
           searches.insert({"name":req.body.name,"terms":[req.body.term],"verified":[req.body.handle],"lastID":["0"]});
-          stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0})
+          stats.insert({"name":req.body.name,"count":0,"negativeCount":0,"averageScore":0,"averageNegativeScore":0,"validRepliesFound":0,"fraudulentRepliesFound":0,"validResponseTime":0,"invalidResponseTime":0})
           db.close();
           console.log("Added Search");
           //TODO
