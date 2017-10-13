@@ -10,7 +10,7 @@ function randomAttempt(MongoClient,config){
   MongoClient.connect(config.url,function(err,db){
     if(err) console.error(err);
     var tweets=db.collection("tweets");
-    tweets.find({replyFound:false,attempts:{$gt:29}}).toArray(function(err,data){
+    tweets.find({replyFound:false,attempts:{$gt:19}}).toArray(function(err,data){
       //Select a random tweet from the results set the attempts to 10 then update
       if(data.length==0){
         return 0;
