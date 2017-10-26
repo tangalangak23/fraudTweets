@@ -340,7 +340,7 @@ $("#statSelector").change(function(data){
     $("#responsesFound").text("%"+(total/data.negativeCount*100).toFixed(2))
     $("#validResponses").text("%"+percent);
     $("#fraudResponses").text("%"+(100-percent).toFixed(2));
-    $("#responseTime").text((data.averageResponseTime)?(data.averageResponseTime).toFixed(2)+" min.":"NaN");
+    $("#responseTime").text((data.validResponseTime)?(data.validResponseTime).toFixed(2)+" min.":"NaN");
     $("#statView").fadeIn()
   });
 });

@@ -82,18 +82,9 @@ module.exports = function (app, passport, express, MongoClient,urlcodeJSON,DEBUG
         var tweets=db.collection("tweets");
         stats.find({name:req.body.name}).toArray(function(err,item){
           var result = item[0];
-          tweets.aggregate([{$match:{replyFound:true,searchName:req.body.name}},{$group:{_id:"$replyFound",average:{$avg:"$responseTime"}}}]).toArray(function(err,data){
-            if(err) console.log(err);
-            if(data[0]){
-              result.averageResponseTime=data[0].average;
-              db.close();
-              res.json(result);
-            }
-            else{
-              db.close();
-              res.json(result);
-            }
-          });
+          if(err) console.log(err);
+          db.close();
+          res.json(result);
         });
       });
     });
