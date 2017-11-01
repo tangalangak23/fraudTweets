@@ -341,7 +341,7 @@ $("#statSelector").change(function(data){
     $("#validResponses").text("%"+percent);
     $("#fraudResponses").text("%"+(100-percent).toFixed(2));
     $("#responseTime").text((data.validResponseTime)?(data.validResponseTime).toFixed(2)+" min.":"NaN");
-    $("#statView").fadeIn()
+    $("#statView").fadeIn();
   });
 });
 
