@@ -16,7 +16,7 @@
     "express-session": "^1.15.3",
     "fs": "0.0.1-security",
     "md5": "^2.2.1",
-    "mongodb": "^2.2.29",
+    "mongodb": "^3.1.13",
     "node-schedule": "^1.2.3",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
